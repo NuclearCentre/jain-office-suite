@@ -1,0 +1,58 @@
+{
+  "name": "jainsheet",
+  "version": "2.1.0",
+  "description": "JainSheet - A desktop spreadsheet application",
+  "author": "JainSheet",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  },
+  "build": {
+    "appId": "com.jainsheet.app",
+    "productName": "JainSheet",
+    "directories": {
+      "output": "D:\\JainSheet\\dist"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "renderer.js",
+      "icon.ico",
+      "node_modules/**/*",
+      "sidebar.bmp"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "artifactName": "JainSheet-Setup.exe",
+      "shortcutName": "JainSheet",
+      "uninstallDisplayName": "JainSheet",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": true,
+      "installerSidebar": "sidebar.bmp",
+      "uninstallerSidebar": "sidebar.bmp"
+    }
+  },
+  "devDependencies": {
+    "electron": "34.0.0",
+    "electron-builder": "26.0.0"
+  }
+}

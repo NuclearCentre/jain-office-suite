@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="jainsheet-version" content="2.1.0-build-20260615">
+<title>JainSheet</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;overflow:hidden}
+body{font-family:Arial,sans-serif;font-size:12px;background:#f0f0f0;overflow:hidden;user-select:none}
+#app{display:flex;flex-direction:column;height:100vh;width:100%;background:#fff;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0}
+#app>*{flex-shrink:0}
+/* duplicate removed - see #grid-container below */
+#title-bar{background:#1e6e3a;color:#fff;padding:5px 12px;font-size:13px;font-weight:bold;display:flex;align-items:center;gap:8px;-webkit-app-region:drag}
+#title-bar span{font-size:11px;opacity:0.75;font-weight:normal}
+#save-status{font-size:10px;margin-left:8px;opacity:0.85}
+
+/* Ribbon */
+#ribbon{background:#f3f3f3;border-bottom:1px solid #c0c0c0}
+.tab-bar{display:flex;padding:0 4px;border-bottom:1px solid #c0c0c0;background:#e8e8e8}
+.tab{padding:5px 12px;font-size:11px;cursor:pointer;border:none;background:none;color:#333;border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:#1e6e3a;border-bottom:2px solid #1e6e3a;font-weight:bold;background:#f3f3f3}
+.tab:hover:not(.active){background:#ddd}
+.tab-content{display:none;padding:0 4px;gap:0;align-items:stretch;height:82px}
+.tab-content.active{display:flex}
+/* Group container */
+.rg{display:flex;flex-direction:column;align-items:stretch;padding:3px 4px 0 4px;border-right:1px solid #d0d0d0;min-width:fit-content}
+.rg:last-child{border-right:none}
+.rg-label{font-size:9px;color:#888;text-align:center;padding:1px 2px 2px 2px;border-top:1px solid #e0e0e0;margin-top:auto;white-space:nowrap;flex-shrink:0;line-height:11px;height:14px}
+/* Two-row button area */
+.rg-body{display:flex;flex-direction:column;gap:1px;flex:1;justify-content:center;padding:2px 0}
+.rg-r1,.rg-r2{display:flex;align-items:center;gap:2px;height:28px}
+/* Ribbon button — icon on top, label below */
+.rb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:1px 4px;border-radius:3px;cursor:pointer;border:none;background:none;font-size:9px;font-weight:600;color:#333;min-width:32px;height:26px;max-height:26px;white-space:nowrap;line-height:1;overflow:hidden}
+.rb:hover{background:#ddd}
+.rb.active{background:#c8e6c9;color:#1e6e3a}
+.rb svg{width:15px;height:15px;stroke:#444;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-bottom:1px}
+.rb:hover svg,.rb.active svg{stroke:#1e6e3a}
+/* Compact button — icon only, no label, square */
+.rb-icon{display:flex;align-items:center;justify-content:center;padding:3px;border-radius:3px;cursor:pointer;border:none;background:none;width:26px;height:26px}
+.rb-icon:hover{background:#ddd}
+.rb-icon.active{background:#c8e6c9}
+.rb-icon svg{width:14px;height:14px;stroke:#444;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rb-icon:hover svg,.rb-icon.active svg{stroke:#1e6e3a}
+/* Small text button */
+.rb-sm{display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;cursor:pointer;border:1px solid #ccc;background:#fff;font-size:10px;color:#333;white-space:nowrap;height:22px}
+.rb-sm:hover{background:#e8f5ed;border-color:#1e6e3a}
+/* Selects and inputs */
+select.rs{padding:2px 3px;border-radius:3px;border:1px solid #ccc;background:#fff;font-size:10px;cursor:pointer;height:22px}
+input.ri{padding:2px 3px;border-radius:3px;border:1px solid #ccc;background:#fff;font-size:10px;width:38px;text-align:center;height:22px}
+.rb-sep{width:1px;background:#ddd;margin:2px 2px;align-self:stretch}
+
+/* Formula bar */
+#formula-bar{display:flex;align-items:center;gap:6px;padding:3px 8px;background:#fff;border-bottom:1px solid #ccc}
+#cell-addr{width:72px;padding:2px 6px;border:1px solid #ccc;border-radius:3px;font-size:11px;font-weight:bold;text-align:center;background:#f5f5f5;cursor:text}
+#fx-label{font-size:13px;color:#888;font-style:italic;font-weight:bold;cursor:pointer}
+#formula-input{flex:1;padding:2px 6px;border:1px solid #ccc;border-radius:3px;font-size:11px;font-family:Consolas,monospace}
+#formula-input:focus{outline:none;border-color:#1e6e3a}
+
+/* Grid */
+#grid-container{flex:1 1 0;overflow:auto;position:relative;min-height:0;min-width:0;background:#fff;display:block}
+#grid-wrap{width:max-content;min-width:100%}
+table#grid{border-collapse:separate;border-spacing:0;table-layout:fixed;width:max-content;border-top:1px solid #b8b8b8;border-left:1px solid #b8b8b8}
+.ch,.rh{background:#f2f2f2;border-right:1px solid #b8b8b8;border-bottom:1px solid #b8b8b8;text-align:center;font-size:10px;font-weight:bold;color:#555;position:sticky;user-select:none;box-sizing:border-box;white-space:nowrap;overflow:hidden}
+.rh{left:0;z-index:3;width:52px;min-width:52px}
+thead tr th{top:0;z-index:2;height:24px}
+thead tr th.rh{z-index:4}
+.ch{width:82px;min-width:82px;padding:2px}
+.ch.col-sel{background:#c8e6c9;color:#1e6e3a}
+.rh.row-sel{background:#c8e6c9;color:#1e6e3a}
+.dc{border-right:1px solid #d0d0d0;border-bottom:1px solid #d0d0d0;padding:0;position:relative;height:22px;min-width:82px;background:#fff;box-sizing:border-box}
+.dc.sel{outline:2px solid #1e6e3a;outline-offset:-1px;z-index:2}
+.dc.sel.sel-in-range{outline:none}
+.dc.inr{background:#e8f5ed}
+.dc.tbl-h{background:#1e6e3a!important;color:#fff}
+.dc.tbl-a{background:#f0f9f3}
+.dc.locked{background:#fff8e1}
+#range-overlay{position:absolute;pointer-events:none;z-index:3;border:2px solid #1e6e3a;display:none}
+@keyframes marchingAnts{0%{border-dash-offset:0}to{outline-offset:12px}}
+.cd{width:100%;height:100%;padding:0 4px;font-size:11px;line-height:22px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:cell;color:#111;display:block}
+#fill-handle{position:absolute;width:8px;height:8px;background:#1e6e3a;border:1px solid #fff;border-radius:1px;cursor:crosshair;z-index:10;display:none;box-sizing:border-box}
+#fill-handle:hover{background:#155a2e;width:9px;height:9px}
+.dc.formula-sel{background:#bbdefb!important;outline:1px dashed #1565c0;}
+.fill-preview{background:rgba(30,110,58,0.12)!important}
+.cd.num{text-align:right}
+.cd.err{color:#c0392b}
+
+/* Status bar */
+#status-bar{display:flex;align-items:center;gap:16px;padding:2px 12px;background:#1e6e3a;font-size:10px;color:#fff}
+#status-bar .sv{font-weight:bold}
+#status-bar .sr{margin-left:auto;display:flex;gap:12px;align-items:center}
+
+/* Context menu */
+#ctx{position:fixed;background:#fff;border:1px solid #ccc;border-radius:4px;box-shadow:0 3px 12px rgba(0,0,0,0.2);z-index:9999;min-width:180px;display:none;padding:3px 0}
+.ci{padding:5px 16px;font-size:11px;cursor:pointer;color:#333;display:flex;align-items:center;gap:8px}
+.ci:hover{background:#e8f5ed;color:#1e6e3a}
+.ci svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0}
+.cs{height:1px;background:#e8e8e8;margin:3px 0}
+.ci.disabled{color:#aaa;pointer-events:none}
+
+/* Modal */
+.modal-bg{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:10000;display:none;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,0.25);min-width:340px;max-width:520px;width:90%}
+.modal-hdr{background:#1e6e3a;color:#fff;padding:10px 16px;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:bold}
+.modal-hdr button{background:none;border:none;color:#fff;font-size:16px;cursor:pointer;padding:0 4px}
+.modal-body{padding:16px}
+.modal-body label{display:block;font-size:11px;color:#555;margin-bottom:3px;margin-top:10px}
+.modal-body label:first-child{margin-top:0}
+.modal-body input,.modal-body select,.modal-body textarea{width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:3px;font-size:11px}
+.modal-body textarea{height:80px;resize:vertical;font-family:Consolas,monospace}
+.modal-foot{padding:10px 16px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:8px}
+.btn-primary{padding:5px 18px;background:#1e6e3a;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:11px}
+.btn-primary:hover{background:#155a2e}
+.btn-sec{padding:5px 14px;background:#fff;color:#333;border:1px solid #ccc;border-radius:3px;cursor:pointer;font-size:11px}
+.btn-sec:hover{background:#f0f0f0}
+
+/* Chart modal */
+#chart-preview{width:100%;height:200px;border:1px solid #eee;border-radius:3px;margin-top:8px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:11px}
+canvas#chart-canvas{width:100%;height:100%}
+
+/* Dark Mode */
+body.dark{background:#1e1e1e;color:#ddd}
+body.dark #app{background:#252526}
+body.dark #title-bar{background:#0d3a1f}
+body.dark #ribbon,body.dark .tab-bar{background:#2d2d2d;border-color:#444}
+body.dark .tab{color:#ccc}
+body.dark .tab.active{color:#4caf50;border-color:#4caf50;background:#333}
+body.dark .tab:hover:not(.active){background:#3a3a3a}
+body.dark .tab-content{background:#2d2d2d}
+body.dark .rg{border-color:#444}
+body.dark .rb{color:#ccc}
+body.dark .rb:hover{background:#3a3a3a}
+body.dark .rb svg{stroke:#aaa}
+body.dark .rb:hover svg,.dark .rb.active svg{stroke:#4caf50}
+body.dark select.rs,body.dark input.ri{background:#333;color:#ccc;border-color:#555}
+body.dark #formula-bar{background:#252526;border-color:#444}
+body.dark #cell-addr{background:#333;color:#ccc;border-color:#555}
+body.dark #formula-input{background:#2d2d2d;color:#ddd;border-color:#555}
+body.dark .ch,body.dark .rh{background:#2d2d2d;color:#aaa;border-color:#444}
+body.dark .dc{background:#1e1e1e;border-color:#333}
+body.dark .dc.sel{outline-color:#4caf50}
+body.dark .dc.inr{background:#1a3a25}
+body.dark .cd{color:#ddd}
+body.dark #status-bar{background:#0d3a1f}
+body.dark .modal{background:#252526;color:#ddd}
+body.dark .modal-hdr{background:#0d3a1f}
+body.dark .modal-body input,.dark .modal-body select,.dark .modal-body textarea{background:#333;color:#ddd;border-color:#555}
+body.dark #ctx{background:#2d2d2d;border-color:#555}
+body.dark .ci{color:#ccc}
+body.dark .ci:hover{background:#1a3a25;color:#4caf50}
+
+/* Sheet Tabs */
+#sheet-tab-bar{display:flex;align-items:center;background:#e0e0e0;border-top:1px solid #bbb;padding:0 4px;gap:2px;height:26px;overflow-x:auto;flex-shrink:0}
+.sheet-tab{padding:3px 12px;font-size:10px;cursor:pointer;border:1px solid #bbb;border-bottom:none;border-radius:4px 4px 0 0;background:#d0d0d0;color:#444;white-space:nowrap;outline:none}
+.sheet-tab.active{background:#fff;color:#1e6e3a;font-weight:bold;border-color:#1e6e3a;border-bottom:2px solid #fff}
+.sheet-tab:hover:not(.active){background:#e8f5ed}
+.sheet-tab-add{padding:2px 8px;font-size:13px;cursor:pointer;border:1px solid #bbb;border-radius:4px;background:#fff;color:#1e6e3a;margin-left:4px;outline:none}
+.sheet-tab-add:hover{background:#e8f5ed}
+body.dark #sheet-tab-bar{background:#2d2d2d;border-color:#444}
+body.dark .sheet-tab{background:#333;color:#aaa;border-color:#555}
+body.dark .sheet-tab.active{background:#252526;color:#4caf50;border-color:#4caf50}
+body.dark .sheet-tab:hover:not(.active){background:#1a3a25}
+body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
+
+/* Ruler */
+#ruler{display:none;height:16px;background:#f5f5f5;border-bottom:1px solid #ccc;position:relative;overflow:hidden}
+
+/* Comment tooltip */
+.cell-comment{position:absolute;top:-2px;right:-2px;width:0;height:0;border-style:solid;border-width:0 6px 6px 0;border-color:transparent #e53935 transparent transparent;z-index:1;pointer-events:none}
+.comment-tip{position:fixed;background:#ffffcc;border:1px solid #ccc;padding:5px 8px;font-size:11px;border-radius:3px;z-index:9998;pointer-events:none;max-width:200px;box-shadow:2px 2px 6px rgba(0,0,0,0.15);display:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="title-bar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+    JainSheet
+    <span id="file-name">— Book1</span>
+    <span id="save-status"></span>
+  </div>
+
+  <div id="ribbon">
+    <div class="tab-bar">
+      <button class="tab active" data-tab="home">Home</button>
+      <button class="tab" data-tab="insert">Insert</button>
+      <button class="tab" data-tab="pagelayout">Page Layout</button>
+      <button class="tab" data-tab="formulas">Formulas</button>
+      <button class="tab" data-tab="data">Data</button>
+      <button class="tab" data-tab="review">Review</button>
+      <button class="tab" data-tab="view">View</button>
+      <button class="tab" data-tab="tools">Tools</button>
+    </div>
+
+    <!-- HOME -->
+    <div class="tab-content active" id="tab-home">
+
+      <!-- Clipboard -->
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="clipPaste()" title="Paste" style="height:40px;min-width:40px">
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px;margin-bottom:2px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+              Paste
+            </button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb-icon" onclick="clipCut()" title="Cut"><svg viewBox="0 0 24 24"><circle cx="6" cy="20" r="2"/><circle cx="6" cy="4" r="2"/><line x1="8.12" y1="5.17" x2="19" y2="12"/><line x1="8.12" y1="18.83" x2="19" y2="12"/></svg></button>
+            <button class="rb-icon" onclick="clipCopy()" title="Copy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+          </div>
+        </div>
+        <div class="rg-label">Clipboard</div>
+      </div>
+
+      <!-- Font -->
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1" style="gap:3px">
+            <select class="rs" id="font-family" onchange="applyFont()" style="width:108px">
+              <option>Arial</option><option>Calibri</option><option>Times New Roman</option><option>Courier New</option><option>Verdana</option><option>Georgia</option><option>Tahoma</option>
+            </select>
+            <input class="ri" id="font-size" type="number" value="11" min="6" max="72" onchange="applyFontSize()">
+          </div>
+          <div class="rg-r2">
+            <button class="rb-icon" onclick="fmt('bold')" id="btn-bold" title="Bold" style="font-weight:900;font-size:13px;width:24px;height:24px;font-family:Georgia,serif">B</button>
+            <button class="rb-icon" onclick="fmt('italic')" id="btn-italic" title="Italic" style="font-style:italic;font-size:13px;width:24px;height:24px;font-family:Georgia,serif">I</button>
+            <button class="rb-icon" onclick="fmt('underline')" id="btn-underline" title="Underline" style="text-decoration:underline;font-size:12px;width:24px;height:24px">U</button>
+            <button class="rb-icon" onclick="fmt('strike')" title="Strikethrough" style="text-decoration:line-through;font-size:12px;width:24px;height:24px">S</button>
+            <button class="rb-icon" onclick="openFontColor(this)" title="Font Color"><svg viewBox="0 0 24 24"><path d="M9 3L5 20"/><path d="M15 3l4 17"/><path d="M7 14h10"/></svg></button>
+            <button class="rb-icon" onclick="openFillColor(this)" title="Fill Color"><svg viewBox="0 0 24 24"><path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 0 0 7.78 7.78z"/><line x1="19" y1="11" x2="21" y2="13"/></svg></button>
+          </div>
+        </div>
+        <div class="rg-label">Font</div>
+      </div>
+
+      <!-- Alignment -->
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb-icon" onclick="setAlign('left')" title="Align Left"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg></button>
+            <button class="rb-icon" onclick="setAlign('center')" title="Center"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button>
+            <button class="rb-icon" onclick="setAlign('right')" title="Align Right"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg></button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb-icon" onclick="mergeToggle()" title="Merge Cells"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="8" height="12" rx="1"/><rect x="14" y="6" width="8" height="12" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/></svg></button>
+            <button class="rb-icon" onclick="wrapToggle()" title="Wrap Text"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><path d="M3 12h15a3 3 0 0 1 0 6h-4"/><polyline points="11 15 8 18 11 21"/></svg></button>
+          </div>
+        </div>
+        <div class="rg-label">Alignment</div>
+      </div>
+
+      <!-- Number Format -->
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <select class="rs" id="num-fmt" onchange="applyNumFmt(this.value)" style="width:120px">
+              <option value="">General</option>
+              <option value="currency">₹ Currency</option>
+              <option value="usd">$ Dollar</option>
+              <option value="percent">% Percent</option>
+              <option value="number">0.00 Number</option>
+              <option value="integer">0 Integer</option>
+              <option value="date">Date</option>
+              <option value="time">Time</option>
+              <option value="sci">Scientific</option>
+            </select>
+          </div>
+          <div class="rg-r2">
+            <button class="rb-icon" onclick="incDecimal(1)" title="Increase Decimal"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <span style="font-size:9px;color:#555;font-weight:bold">.0</span>
+            <button class="rb-icon" onclick="incDecimal(-1)" title="Decrease Decimal"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          </div>
+        </div>
+        <div class="rg-label">Number Format</div>
+      </div>
+
+      <!-- Styles -->
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="applyStyle('good')" title="Good" style="background:#e8f5e9;color:#2e7d32"><svg viewBox="0 0 24 24" style="stroke:#2e7d32"><polyline points="20 6 9 17 4 12"/></svg>Good</button>
+            <button class="rb" onclick="applyStyle('bad')" title="Bad" style="background:#ffebee;color:#c0392b"><svg viewBox="0 0 24 24" style="stroke:#c0392b"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Bad</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="applyStyle('neutral')" title="Neutral" style="background:#fff8e1;color:#f57f17"><svg viewBox="0 0 24 24" style="stroke:#f57f17"><line x1="5" y1="12" x2="19" y2="12"/></svg>Neutral</button>
+            <button class="rb" onclick="condFormat()" title="Conditional Format"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Cond</button>
+          </div>
+        </div>
+        <div class="rg-label">Styles</div>
+      </div>
+
+      <!-- Format -->
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" id="btn-fmt-painter" onclick="formatPainter()" title="Format Painter — click to copy format, then click target cell"><svg viewBox="0 0 24 24"><path d="M18 4a2 2 0 0 1 0 4H6"/><path d="M6 4v16"/><path d="M14 12l4 4-4 4"/></svg>Paint</button>
+            <button class="rb" onclick="clearFormat()" title="Clear Format — remove all formatting, keep content"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16l10-10 7 7z"/><line x1="14" y1="4" x2="20" y2="10"/></svg>Clear Fmt</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="openBorderPicker(this)" title="Borders — add or remove cell borders"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Borders</button>
+          </div>
+        </div>
+        <div class="rg-label">Format</div>
+      </div>
+
+      <!-- Cells -->
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="insertRowAbove()" title="Insert Row"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Row+</button>
+            <button class="rb" onclick="deleteSelectedRow()" title="Delete Row"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Row-</button>
+            <button class="rb" onclick="insertColLeft()" title="Insert Column"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Col+</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="deleteSelectedCol()" title="Delete Column"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Col-</button>
+            <button class="rb" onclick="clearCells()" title="Clear Contents"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16l10-10 7 7z"/></svg>Clear</button>
+          </div>
+        </div>
+        <div class="rg-label">Cells</div>
+      </div>
+
+      <!-- Editing -->
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="insertAutoSum()" title="AutoSum"><svg viewBox="0 0 24 24"><path d="M18 4H6l6 8-6 8h12"/></svg>Sum</button>
+            <button class="rb" onclick="doFind()" title="Find"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Find</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="doReplace()" title="Replace"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>Replace</button>
+            <button class="rb" onclick="doSort(true)" title="Sort A→Z"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="13" y2="18"/><polyline points="15 9 18 3 21 9"/><line x1="18" y1="3" x2="18" y2="21"/></svg>Sort</button>
+          </div>
+        </div>
+        <div class="rg-label">Editing</div>
+      </div>
+
+    </div>
+
+    <!-- INSERT -->
+    <div class="tab-content" id="tab-insert">
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="openModal('modal-chart')" title="Chart"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Chart</button>
+            <button class="rb" onclick="insertSparkline()" title="Sparkline"><svg viewBox="0 0 24 24"><polyline points="3 17 7 11 11 14 15 8 21 15"/></svg>Sparkline</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="createTable()" title="Table"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Table</button>
+            <button class="rb" onclick="insertAutoSum()" title="AutoSum"><svg viewBox="0 0 24 24"><path d="M18 4H6l6 8-6 8h12"/></svg>Sum</button>
+          </div>
+        </div>
+        <div class="rg-label">Charts & Tables</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="openModal('modal-link')" title="Hyperlink"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link</button>
+            <button class="rb" onclick="openModal('modal-symbol')" title="Symbol"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Symbol</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="insertComment()" title="Comment"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button>
+          </div>
+        </div>
+        <div class="rg-label">Links & More</div>
+      </div>
+    </div>
+
+    <!-- PAGE LAYOUT -->
+    <div class="tab-content" id="tab-pagelayout">
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="setOrientation('portrait')" id="btn-portrait" title="Portrait"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/></svg>Portrait</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="setOrientation('landscape')" id="btn-landscape" title="Landscape"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>Landscape</button>
+          </div>
+        </div>
+        <div class="rg-label">Orientation</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <select class="rs" id="page-size" onchange="setPageSize(this.value)" style="width:90px">
+              <option value="A4">A4</option><option value="A3">A3</option>
+              <option value="Letter">Letter</option><option value="Legal">Legal</option>
+            </select>
+          </div>
+          <div class="rg-r2">
+            <select class="rs" id="scale-sel" onchange="setScale(this.value)" style="width:90px">
+              <option value="100">100%</option><option value="75">75%</option>
+              <option value="50">50%</option><option value="150">150%</option>
+            </select>
+          </div>
+        </div>
+        <div class="rg-label">Page Size / Scale</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="insertPageBreak()" title="Insert Page Break"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="4 2"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Break</button>
+            <button class="rb" onclick="removePageBreak()" title="Remove Page Break"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="18" y1="6" x2="6" y2="18"/></svg>Remove</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="setMargins()" title="Margins"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10"/></svg>Margins</button>
+          </div>
+        </div>
+        <div class="rg-label">Page Setup</div>
+      </div>
+    </div>
+
+    <!-- FORMULAS -->
+    <div class="tab-content" id="tab-formulas">
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="openModal('modal-formula')" title="Insert Function"><svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>Insert Fn</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="openModal('modal-namemanager')" title="Name Manager"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Name Mgr</button>
+          </div>
+        </div>
+        <div class="rg-label">Function</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1" style="flex-wrap:wrap;max-width:220px;gap:2px">
+            <button class="rb-sm" onclick="insertFn('SUM')">SUM</button>
+            <button class="rb-sm" onclick="insertFn('AVERAGE')">AVG</button>
+            <button class="rb-sm" onclick="insertFn('COUNT')">COUNT</button>
+            <button class="rb-sm" onclick="insertFn('MAX')">MAX</button>
+            <button class="rb-sm" onclick="insertFn('MIN')">MIN</button>
+            <button class="rb-sm" onclick="insertFn('IF')">IF</button>
+            <button class="rb-sm" onclick="insertFn('VLOOKUP')">VLOOKUP</button>
+            <button class="rb-sm" onclick="insertFn('CONCAT')">CONCAT</button>
+            <button class="rb-sm" onclick="insertFn('ROUND')">ROUND</button>
+            <button class="rb-sm" onclick="insertFn('TODAY')">TODAY</button>
+            <button class="rb-sm" onclick="insertFn('PMT')">PMT</button>
+            <button class="rb-sm" onclick="insertFn('LARGE')">LARGE</button>
+          </div>
+          <div class="rg-r2"></div>
+        </div>
+        <div class="rg-label">Quick Formulas</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="calcNow()" title="Calculate Now"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Calc Now</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="toggleAutoCalc()" id="btn-autocalc" title="Auto Calculate"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Auto Calc</button>
+          </div>
+        </div>
+        <div class="rg-label">Calculation</div>
+      </div>
+    </div>
+
+    <!-- DATA -->
+    <div class="tab-content" id="tab-data">
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="doSort(true)" title="Sort A-Z"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><polyline points="15 9 18 3 21 9"/><line x1="18" y1="3" x2="18" y2="21"/></svg>A→Z</button>
+            <button class="rb" onclick="doSort(false)" title="Sort Z-A"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><polyline points="15 15 18 21 21 15"/><line x1="18" y1="3" x2="18" y2="21"/></svg>Z→A</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="openModal('modal-customsort')" title="Custom Sort"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>Custom</button>
+          </div>
+        </div>
+        <div class="rg-label">Sort</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="toggleFilter()" id="btn-filter" title="Toggle Filter"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filter</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="clearFilter()" title="Clear Filter"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/><line x1="3" y1="3" x2="21" y2="21"/></svg>Clear</button>
+          </div>
+        </div>
+        <div class="rg-label">Filter</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="highlightDuplicates()" title="Highlight Duplicates"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Hi-Dups</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="removeDuplicates()" title="Remove Duplicates"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><line x1="3" y1="3" x2="21" y2="21"/></svg>Rem-Dups</button>
+          </div>
+        </div>
+        <div class="rg-label">Duplicates</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="textToColumns()" title="Text to Columns"><svg viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 7 12 3 16 7"/></svg>Text→Cols</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="openDataValModal()" title="Data Validation"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Validation</button>
+          </div>
+        </div>
+        <div class="rg-label">Data Tools</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="openModal('modal-stats')" title="Data Analysis"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>Analysis</button>
+          </div>
+          <div class="rg-r2"></div>
+        </div>
+        <div class="rg-label">Analysis</div>
+      </div>
+    </div>
+
+    <!-- REVIEW -->
+    <div class="tab-content" id="tab-review">
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="spellCheck()" title="Spelling"><svg viewBox="0 0 24 24"><path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 0 1 6.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>Spelling</button>
+          </div>
+          <div class="rg-r2"></div>
+        </div>
+        <div class="rg-label">Proofing</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="insertComment()" title="New Comment"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button>
+            <button class="rb" onclick="deleteComment()" title="Delete Comment"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>Del</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="toggleComments()" title="Show/Hide Comments"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Show All</button>
+          </div>
+        </div>
+        <div class="rg-label">Comments</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="lockCell()" id="btn-lock" title="Lock Cell"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Lock Cell</button>
+            <button class="rb" onclick="openModal('modal-protect')" title="Protect Sheet"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Protect</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="shareWorkbook()" title="Share Workbook"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
+          </div>
+        </div>
+        <div class="rg-label">Protect</div>
+      </div>
+    </div>
+
+    <!-- VIEW -->
+    <div class="tab-content" id="tab-view">
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="setView('normal')" id="btn-viewnormal" title="Normal View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Normal</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="setView('pagebreak')" id="btn-viewpb" title="Page Break Preview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="3 2"/></svg>Page Brk</button>
+          </div>
+        </div>
+        <div class="rg-label">View</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="toggleFreeze()" id="btn-freeze" title="Freeze/Unfreeze Panes"><svg viewBox="0 0 24 24"><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Freeze</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="toggleRuler()" id="btn-ruler" title="Toggle Ruler"><svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="1"/><line x1="6" y1="8" x2="6" y2="12"/><line x1="10" y1="8" x2="10" y2="11"/><line x1="14" y1="8" x2="14" y2="12"/><line x1="18" y1="8" x2="18" y2="11"/></svg>Ruler</button>
+          </div>
+        </div>
+        <div class="rg-label">Freeze / Ruler</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="toggleGridlines()" id="btn-grid" title="Toggle Gridlines"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Gridlines</button>
+            <button class="rb" onclick="toggleHeaders()" id="btn-headers" title="Toggle Headers"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/></svg>Headers</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="toggleDarkMode()" id="btn-darkmode" title="Toggle Dark Mode"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Dark Mode</button>
+          </div>
+        </div>
+        <div class="rg-label">Show</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb-icon" onclick="zoomChange(-10)" title="Zoom Out"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
+            <span id="zoom-val" style="font-size:10px;min-width:32px;text-align:center;font-weight:bold">100%</span>
+            <button class="rb-icon" onclick="zoomChange(10)" title="Zoom In"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
+          </div>
+          <div class="rg-r2" style="justify-content:center">
+            <button class="rb" onclick="zoomReset()" title="Reset Zoom"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>Reset</button>
+          </div>
+        </div>
+        <div class="rg-label">Zoom</div>
+      </div>
+    </div>
+
+    <!-- TOOLS -->
+    <div class="tab-content" id="tab-tools">
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="openModal('modal-macro')" title="Macros"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Macros</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="openModal('modal-script')" title="Script Editor"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Script</button>
+          </div>
+        </div>
+        <div class="rg-label">Macros</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb" onclick="openModal('modal-addins')" title="Add-ins"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Add-ins</button>
+          </div>
+          <div class="rg-r2">
+            <button class="rb" onclick="openModal('modal-options')" title="Options"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Options</button>
+          </div>
+        </div>
+        <div class="rg-label">Settings</div>
+      </div>
+    </div>
+  </div><!-- end ribbon -->
+
+  <div id="formula-bar">
+    <input id="cell-addr" value="A1" title="Name Box — type cell ref (e.g. B5) or range (e.g. A1:D10) and press Enter">
+    <span id="fx-label" title="Insert Function" onclick="openModal('modal-formula')">fx</span>
+    <input id="formula-input" placeholder="Enter value or formula  e.g. =SUM(A1:A5)">
+  </div>
+
+  <!-- Ruler (hidden by default) -->
+  <div id="ruler" style="display:none;height:16px;background:#e8e8e8;border-bottom:1px solid #ccc;padding:2px 50px;font-size:9px;color:#888;overflow:hidden">
+    <span style="display:flex;gap:82px;">
+      <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+    </span>
+  </div>
+
+  <div id="grid-container">
+    <div id="range-overlay"></div>
+    <div id="formula-overlay"></div>
+    <div id="fill-handle" title="Drag to fill"></div>
+    <div id="grid-wrap"><table id="grid"></table></div>
+  </div>
+
+  <div id="sheet-tab-bar"></div>
+
+  <div id="status-bar">
+    <span id="sb-mode">Ready</span>
+    <span>Sum: <span id="sb-sum" class="sv">0</span></span>
+    <span>Avg: <span id="sb-avg" class="sv">0</span></span>
+    <span>Count: <span id="sb-count" class="sv">0</span></span>
+    <span class="sr">
+      <span id="sb-cell">A1</span>
+      <span id="sb-page">Page Layout: A4 Portrait</span>
+      <span id="sb-zoom-display">100%</span>
+    </span>
+  </div>
+</div>
+
+<!-- Context Menu -->
+<div id="ctx">
+  <div class="ci" onclick="ctxAct('cut')"><svg viewBox="0 0 24 24"><circle cx="6" cy="20" r="2"/><circle cx="6" cy="4" r="2"/><line x1="8.12" y1="5.17" x2="19" y2="12"/><line x1="8.12" y1="18.83" x2="19" y2="12"/></svg>Cut</div>
+  <div class="ci" onclick="ctxAct('copy')"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</div>
+  <div class="ci" onclick="ctxAct('paste')"><svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Paste</div>
+  <div class="cs"></div>
+  <div class="ci" onclick="ctxAct('insertRow')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Insert Row Above</div>
+  <div class="ci" onclick="ctxAct('deleteRow')"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Delete Row</div>
+  <div class="ci" onclick="ctxAct('insertCol')">Insert Column Left</div>
+  <div class="ci" onclick="ctxAct('deleteCol')">Delete Column</div>
+  <div class="cs"></div>
+  <div class="ci" onclick="ctxAct('comment')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Insert Comment</div>
+  <div class="ci" onclick="ctxAct('format')">Format Cells…</div>
+  <div class="cs"></div>
+  <div class="ci" onclick="ctxAct('clear')"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16l10-10 7 7z"/></svg>Clear Contents</div>
+</div>
+
+<!-- Comment tooltip -->
+<div id="comment-tip" class="comment-tip"></div>
+
+<!-- MODALS -->
+
+<!-- Chart Modal -->
+<div class="modal-bg" id="modal-chart">
+  <div class="modal">
+    <div class="modal-hdr">Insert Chart <button onclick="closeModal('modal-chart')">✕</button></div>
+    <div class="modal-body">
+      <label>Chart Type</label>
+      <select id="chart-type" onchange="previewChart()">
+        <option value="bar">Bar Chart</option>
+        <option value="line">Line Chart</option>
+        <option value="pie">Pie Chart</option>
+        <option value="area">Area Chart</option>
+      </select>
+      <label>Data Range (e.g. A1:B5)</label>
+      <input id="chart-range" placeholder="A1:B5" oninput="previewChart()">
+      <label>Chart Title</label>
+      <input id="chart-title" placeholder="My Chart">
+      <div id="chart-preview"><canvas id="chart-canvas"></canvas></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-chart')">Cancel</button>
+      <button class="btn-primary" onclick="insertChart()">Insert Chart</button>
+    </div>
+  </div>
+</div>
+
+<!-- Formula Insert Modal -->
+<div class="modal-bg" id="modal-formula">
+  <div class="modal">
+    <div class="modal-hdr">Insert Function <button onclick="closeModal('modal-formula')">✕</button></div>
+    <div class="modal-body">
+      <label>Select Function</label>
+      <select id="fn-select" style="width:100%" onchange="updateFnDesc()">
+        <option value="SUM">SUM — Adds all numbers in a range</option>
+        <option value="AVERAGE">AVERAGE — Returns mean of numbers</option>
+        <option value="COUNT">COUNT — Counts numeric cells</option>
+        <option value="MAX">MAX — Returns largest value</option>
+        <option value="MIN">MIN — Returns smallest value</option>
+        <option value="IF">IF — Conditional: IF(test,true,false)</option>
+        <option value="VLOOKUP">VLOOKUP — Vertical lookup</option>
+        <option value="CONCAT">CONCAT — Joins text strings</option>
+        <option value="LEN">LEN — Length of text</option>
+        <option value="ROUND">ROUND — Rounds a number</option>
+        <option value="ABS">ABS — Absolute value</option>
+        <option value="SQRT">SQRT — Square root</option>
+        <option value="TODAY">TODAY — Returns today's date</option>
+        <option value="PMT">PMT — Loan payment calculation</option>
+        <option value="NPV">NPV — Net present value</option>
+        <option value="UPPER">UPPER — Converts to uppercase</option>
+        <option value="LOWER">LOWER — Converts to lowercase</option>
+        <option value="TRIM">TRIM — Removes extra spaces</option>
+        <option value="LEFT">LEFT — Extracts left characters</option>
+        <option value="RIGHT">RIGHT — Extracts right characters</option>
+        <option value="MID">MID — Extracts middle characters</option>
+      </select>
+      <label>Arguments</label>
+      <input id="fn-args" placeholder="e.g. A1:A10">
+      <label>Preview</label>
+      <input id="fn-preview" readonly style="background:#f5f5f5;font-family:Consolas,monospace">
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-formula')">Cancel</button>
+      <button class="btn-primary" onclick="applyFnInsert()">Insert</button>
+    </div>
+  </div>
+</div>
+
+<!-- Find Modal -->
+<div class="modal-bg" id="modal-find">
+  <div class="modal" style="min-width:300px">
+    <div class="modal-hdr">Find &amp; Replace <button onclick="closeModal('modal-find')">✕</button></div>
+    <div class="modal-body">
+      <label>Find</label><input id="find-txt" placeholder="Search...">
+      <label>Replace with</label><input id="replace-txt" placeholder="Replace with...">
+      <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:4px;margin:0"><input type="checkbox" id="find-case"> Match case</label>
+        <label style="display:flex;align-items:center;gap:4px;margin:0"><input type="checkbox" id="find-whole"> Whole cell</label>
+      </div>
+      <div id="find-result" style="font-size:10px;color:#888;margin-top:6px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-find')">Close</button>
+      <button class="btn-sec" onclick="findNext()">Find Next</button>
+      <button class="btn-primary" onclick="replaceAll()">Replace All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Link Modal -->
+<div class="modal-bg" id="modal-link">
+  <div class="modal">
+    <div class="modal-hdr">Insert Hyperlink <button onclick="closeModal('modal-link')">✕</button></div>
+    <div class="modal-body">
+      <label>Display Text</label><input id="link-text" placeholder="Click here">
+      <label>URL</label><input id="link-url" placeholder="https://...">
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-link')">Cancel</button>
+      <button class="btn-primary" onclick="applyLink()">Insert</button>
+    </div>
+  </div>
+</div>
+
+<!-- Symbol Modal -->
+<div class="modal-bg" id="modal-symbol">
+  <div class="modal">
+    <div class="modal-hdr">Insert Symbol <button onclick="closeModal('modal-symbol')">✕</button></div>
+    <div class="modal-body">
+      <div id="symbol-grid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:3px;max-height:200px;overflow-y:auto"></div>
+      <label style="margin-top:8px">Selected: <span id="symbol-selected" style="font-size:16px;font-weight:bold"></span></label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-symbol')">Cancel</button>
+      <button class="btn-primary" onclick="insertSymbol()">Insert</button>
+    </div>
+  </div>
+</div>
+
+<!-- Comment Modal -->
+<div class="modal-bg" id="modal-comment">
+  <div class="modal">
+    <div class="modal-hdr">Add Comment <button onclick="closeModal('modal-comment')">✕</button></div>
+    <div class="modal-body">
+      <label>Comment for <strong id="comment-cell-ref"></strong></label>
+      <textarea id="comment-text" placeholder="Enter your comment..."></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-comment')">Cancel</button>
+      <button class="btn-primary" onclick="saveComment()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Protect Modal -->
+<div class="modal-bg" id="modal-protect">
+  <div class="modal">
+    <div class="modal-hdr" id="protect-hdr">Protect Sheet <button onclick="closeModal('modal-protect')">✕</button></div>
+    <div class="modal-body">
+      <div id="protect-msg" style="font-size:11px;color:#555;margin-bottom:10px"></div>
+      <label id="protect-pwd-label">Password (optional)</label>
+      <input id="protect-pwd" type="password" placeholder="Leave blank for no password">
+      <label id="protect-sel-row" style="margin-top:8px;display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="protect-sel" checked> Allow selecting locked cells
+      </label>
+      <label id="protect-edit-row" style="display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="protect-edit"> Allow editing unlocked cells
+      </label>
+      <div id="protect-status" style="font-size:10px;color:#1e6e3a;margin-top:8px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-protect')">Cancel</button>
+      <button class="btn-primary" id="protect-btn" onclick="applyProtect()">Protect</button>
+    </div>
+  </div>
+</div>
+
+<!-- Macro Modal -->
+<div class="modal-bg" id="modal-macro">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-hdr">Macros <button onclick="closeModal('modal-macro')">✕</button></div>
+    <div class="modal-body">
+      <label>Macro Name</label>
+      <input id="macro-name" placeholder="MyMacro">
+      <label>Script (JavaScript)</label>
+      <textarea id="macro-script" style="height:120px;font-family:Consolas,monospace;font-size:11px" placeholder="// Example: set A1 to Hello\nsetRaw(0,0,'Hello');"></textarea>
+      <div id="macro-result" style="font-size:10px;margin-top:6px;color:#1e6e3a"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-macro')">Close</button>
+      <button class="btn-sec" onclick="saveMacro()">Save Macro</button>
+      <button class="btn-primary" onclick="runMacro()">▶ Run</button>
+    </div>
+  </div>
+</div>
+
+<!-- Script Editor Modal -->
+<div class="modal-bg" id="modal-script">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-hdr">Script Editor <button onclick="closeModal('modal-script')">✕</button></div>
+    <div class="modal-body">
+      <label>Script (JavaScript — full access to sheet API)</label>
+      <textarea id="script-code" style="height:160px;font-family:Consolas,monospace;font-size:11px" placeholder="// Available: setRaw(r,c,val), getRaw(r,c), renderAll(), selR, selC&#10;// Example: fill A1:A10 with row numbers&#10;for(var i=0;i<10;i++) setRaw(i,0,i+1);"></textarea>
+      <div id="script-result" style="font-size:10px;margin-top:6px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-script')">Close</button>
+      <button class="btn-primary" onclick="runScript()">▶ Run Script</button>
+    </div>
+  </div>
+</div>
+
+<!-- Options Modal -->
+<div class="modal-bg" id="modal-options">
+  <div class="modal">
+    <div class="modal-hdr">Options <button onclick="closeModal('modal-options')">✕</button></div>
+    <div class="modal-body">
+      <label>Default Font</label>
+      <select id="opt-font"><option>Arial</option><option>Calibri</option><option>Times New Roman</option></select>
+      <label>Default Font Size</label>
+      <input type="number" id="opt-size" value="11" min="6" max="72">
+      <label>Number of Rows</label>
+      <input type="number" id="opt-rows" value="60" min="20" max="500">
+      <label style="margin-top:8px;display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="opt-autocalc" checked> Auto-calculate formulas
+      </label>
+      <label style="display:flex;align-items:center;gap:6px">
+        <input type="checkbox" id="opt-gridlines" checked> Show gridlines
+      </label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-options')">Cancel</button>
+      <button class="btn-primary" onclick="applyOptions()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Data Validation Modal -->
+<div class="modal-bg" id="modal-dataval">
+  <div class="modal">
+    <div class="modal-hdr">Data Validation <button onclick="closeModal('modal-dataval')">✕</button></div>
+    <div class="modal-body">
+      <label>Allow</label>
+      <select id="val-type">
+        <option value="any">Any value</option>
+        <option value="number">Number</option>
+        <option value="list">List</option>
+        <option value="date">Date</option>
+        <option value="text">Text length</option>
+      </select>
+      <label>Condition / Values</label>
+      <input id="val-value" placeholder="e.g. 1,2,3 or >0 or <100">
+      <label>Error Message</label>
+      <input id="val-msg" placeholder="Invalid input">
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-dataval')">Cancel</button>
+      <button class="btn-primary" onclick="applyDataVal()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Modal -->
+<div class="modal-bg" id="modal-stats">
+  <div class="modal">
+    <div class="modal-hdr">Data Analysis <button onclick="closeModal('modal-stats')">✕</button></div>
+    <div class="modal-body">
+      <div id="stats-content" style="font-size:11px;line-height:1.8"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-primary" onclick="closeModal('modal-stats')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Name Manager Modal -->
+<div class="modal-bg" id="modal-namemanager">
+  <div class="modal">
+    <div class="modal-hdr">Name Manager <button onclick="closeModal('modal-namemanager')">✕</button></div>
+    <div class="modal-body">
+      <label>Name</label><input id="nm-name" placeholder="e.g. TaxRate">
+      <label>Refers To (cell or range)</label><input id="nm-ref" placeholder="e.g. A1 or B2:B10">
+      <div id="nm-list" style="margin-top:10px;font-size:11px;max-height:120px;overflow-y:auto;border:1px solid #eee;border-radius:3px;padding:6px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-namemanager')">Close</button>
+      <button class="btn-primary" onclick="addNamedRange()">Add Name</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add-ins Modal -->
+<div class="modal-bg" id="modal-addins">
+  <div class="modal">
+    <div class="modal-hdr">Add-ins <button onclick="closeModal('modal-addins')">✕</button></div>
+    <div class="modal-body">
+      <div style="font-size:11px;color:#555;line-height:1.8">
+        <p><strong>Available Add-ins:</strong></p>
+        <label style="display:flex;align-items:center;gap:8px;margin:6px 0"><input type="checkbox"> Currency Converter</label>
+        <label style="display:flex;align-items:center;gap:8px;margin:6px 0"><input type="checkbox"> PDF Exporter</label>
+        <label style="display:flex;align-items:center;gap:8px;margin:6px 0"><input type="checkbox"> Advanced Charts</label>
+        <label style="display:flex;align-items:center;gap:8px;margin:6px 0"><input type="checkbox"> Data Importer (CSV/JSON)</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-primary" onclick="closeModal('modal-addins')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Sort Modal -->
+<div class="modal-bg" id="modal-customsort">
+  <div class="modal">
+    <div class="modal-hdr">Custom Sort <button onclick="closeModal('modal-customsort')">✕</button></div>
+    <div class="modal-body">
+      <label>Sort by Column</label>
+      <select id="sort-col" style="width:100%"></select>
+      <label>Order</label>
+      <select id="sort-order"><option value="asc">A → Z (Ascending)</option><option value="desc">Z → A (Descending)</option></select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sec" onclick="closeModal('modal-customsort')">Cancel</button>
+      <button class="btn-primary" onclick="applyCustomSort()">Sort</button>
+    </div>
+  </div>
+</div>
+
+<!-- Comment Tooltip -->
+<div class="comment-tip" id="comment-tip"></div>
+
+<!-- Shortcuts Modal -->
+<div class="modal-bg" id="modal-shortcuts">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-hdr">Keyboard Shortcuts <button onclick="closeModal('modal-shortcuts')">✕</button></div>
+    <div class="modal-body" style="max-height:400px;overflow-y:auto">
+      <div id="shortcut-content"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-primary" onclick="closeModal('modal-shortcuts')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="renderer.js"></script>
+</body>
+</html>

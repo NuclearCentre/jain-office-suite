@@ -1,12 +1,12 @@
 {
   "name": "jain-office-suite",
   "version": "1.0.0",
-  "description": "Jain Office Suite — Launcher",
+  "description": "Jain Office Suite \u2014 One installer for JainDocument and JainSheet",
   "author": "Jain Office Suite",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build-win": "electron-builder --win --x64"
+    "build-win": "electron-builder --win --x64 && \"dist\\Jain Office Suite Setup 1.0.0.exe\""
   },
   "build": {
     "appId": "com.jainoffice.app",
@@ -20,6 +20,34 @@
         "owner": "NuclearCentre",
         "repo": "jain-office-suite",
         "releaseType": "release"
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "../jaindocument",
+        "to": "jaindocument",
+        "filter": [
+          "**/*",
+          "!dist/**/*",
+          "!.git/**/*",
+          "!*.bak",
+          "!*.md",
+          "!*.ps1",
+          "!*.bat"
+        ]
+      },
+      {
+        "from": "../jainsheet",
+        "to": "jainsheet",
+        "filter": [
+          "**/*",
+          "!dist/**/*",
+          "!.git/**/*",
+          "!*.bak",
+          "!*.md",
+          "!*.ps1",
+          "!*.bat"
+        ]
       }
     ],
     "win": {
@@ -38,11 +66,16 @@
       "perMachine": true,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "Jain Office",
       "artifactName": "Jain Office Suite Setup ${version}.exe",
-      "differentialPackage": false
+      "differentialPackage": false,
+      "installerSidebar": "suite_sidebar.bmp",
+      "uninstallerSidebar": "suite_sidebar.bmp",
+      "include": "installer.nsh"
     },
     "files": [
       "main.js",
@@ -50,12 +83,14 @@
       "index.html",
       "style.css",
       "assets/**/*",
+      "suite_sidebar.bmp",
       "node_modules/electron-updater/**/*",
       "node_modules/builder-util-runtime/**/*"
-    ]
+    ],
+    "asar": false
   },
   "devDependencies": {
-    "electron": "^28.0.0",
+    "electron": "28.0.0",
     "electron-builder": "24.9.1"
   },
   "dependencies": {

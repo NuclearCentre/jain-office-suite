@@ -1197,7 +1197,12 @@ function showFpRight(html) {
 
 function initFilePanel() {
   btn('btn-file-tab',  openFilePanel);
-  btn('btn-file-close', closeFilePanel);
+  // Fix: use mousedown so click is not swallowed by overlay
+  const closeBtn = document.getElementById('btn-file-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeFilePanel(); });
+    closeBtn.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+  }
   document.getElementById('file-overlay')?.addEventListener('click', closeFilePanel);
 
   btn('fp-new',  () => { closeFilePanel(); window.electronAPI.menuNew(); });
@@ -1205,7 +1210,7 @@ function initFilePanel() {
   btn('fp-save', () => { closeFilePanel(); window.electronAPI.menuSave(); });
   btn('fp-recent', () => showRecentFiles()); // async — returns promise, that's fine
 
-  btn('fp-save-as', () => {
+  document.getElementById('fp-save-as')?.addEventListener('mouseenter', () => {
     showFpRight(`<div class="fp-right-section">
       <div class="fp-right-title">Save As</div>
       <p class="fp-right-desc">Choose a format to save your document</p>
@@ -1220,7 +1225,7 @@ function initFilePanel() {
     });
   });
 
-  btn('fp-share', () => {
+  document.getElementById('fp-share')?.addEventListener('mouseenter', () => {
     showFpRight(`<div class="fp-right-section">
       <div class="fp-right-title">Share</div>
       <button class="fp-right-btn" id="fpr-share-copy">&#128203; Copy file path</button>
@@ -1237,10 +1242,10 @@ function initFilePanel() {
   });
 
   btn('fp-export-pdf',     () => { closeFilePanel(); window.electronAPI.menuExportPdf?.(); });
-  btn('fp-export-picture', () => { showFpRight(`<div class="fp-right-section"><div class="fp-right-title">Export to Picture</div><p class="fp-right-desc">Saves page as PNG image</p><button class="fp-right-btn" id="fpr-png">PNG Image</button></div>`); btn('fpr-png', () => { closeFilePanel(); window.print(); }); });
-  btn('fp-output-pptx',   () => { showFpRight(`<div class="fp-right-section"><div class="fp-right-title">Output as PPTX</div><p class="fp-right-desc">Coming in a future version</p></div>`); });
+  document.getElementById('fp-export-picture')?.addEventListener('mouseenter', () => { showFpRight(`<div class="fp-right-section"><div class="fp-right-title">Export to Picture</div><p class="fp-right-desc">Saves page as PNG image</p><button class="fp-right-btn" id="fpr-png">PNG Image</button></div>`); btn('fpr-png', () => { closeFilePanel(); window.print(); }); });
+  document.getElementById('fp-output-pptx')?.addEventListener('mouseenter', () => { showFpRight(`<div class="fp-right-section"><div class="fp-right-title">Output as PPTX</div><p class="fp-right-desc">Coming in a future version</p></div>`); });
 
-  btn('fp-print', () => {
+  document.getElementById('fp-print')?.addEventListener('mouseenter', () => {
     showFpRight(`<div class="fp-right-section">
       <div class="fp-right-title">Print</div>
       <button class="fp-right-btn" id="fpr-print-now">&#128438; Print Now</button>
@@ -1252,12 +1257,12 @@ function initFilePanel() {
 
   btn('fp-print-preview', () => { closeFilePanel(); setTimeout(openPrintPreview, 200); });
 
-  btn('fp-email', () => {
+  document.getElementById('fp-email')?.addEventListener('mouseenter', () => {
     showFpRight(`<div class="fp-right-section"><div class="fp-right-title">Send E-mail</div><button class="fp-right-btn" id="fpr-email-attach">&#9993; Send as Attachment</button></div>`);
     btn('fpr-email-attach', () => { closeFilePanel(); window.electronAPI.menuEmail?.(); });
   });
 
-  btn('fp-encrypt', () => {
+  document.getElementById('fp-encrypt')?.addEventListener('mouseenter', () => {
     showFpRight(`<div class="fp-right-section">
       <div class="fp-right-title">Encrypt Document</div>
       <p class="fp-right-desc">Password-protect your document</p>
@@ -1277,7 +1282,7 @@ function initFilePanel() {
     });
   });
 
-  btn('fp-backup', () => {
+  document.getElementById('fp-backup')?.addEventListener('mouseenter', () => {
     showFpRight(`<div class="fp-right-section">
       <div class="fp-right-title">Backup and Restore</div>
       <button class="fp-right-btn" id="fpr-backup-now">&#128190; Backup Now</button>
@@ -1287,7 +1292,7 @@ function initFilePanel() {
     btn('fpr-backup-restore', () => { closeFilePanel(); window.electronAPI.menuOpen(); });
   });
 
-  btn('fp-help', () => {
+  document.getElementById('fp-help')?.addEventListener('mouseenter', () => {
     showFpRight(`<div class="fp-right-section">
       <div class="fp-right-title">Help</div>
       <button class="fp-right-btn" id="fpr-about">&#x1F4CB; About JainDocument</button>

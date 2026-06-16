@@ -5,11 +5,25 @@ const fs   = require('fs');
 const { spawn } = require('child_process');
 
 // ── Paths ─────────────────────────────────────────────────────────────────────
-const SUITE_ROOT  = 'D:\\Jain Office Suite\\Jain Office Suite';
-const DOC_DIR     = path.join(SUITE_ROOT, 'jaindocument');
-const SHEET_DIR   = path.join(SUITE_ROOT, 'jainsheet');
-const DOC_EXE     = path.join(DOC_DIR,   'node_modules', 'electron', 'dist', 'electron.exe');
-const SHEET_EXE   = path.join(SHEET_DIR, 'node_modules', 'electron', 'dist', 'electron.exe');
+const IS_PACKED  = app.isPackaged;
+
+// Dev mode: apps are sibling folders in suite root
+// Installed mode: apps are in resources\ folder next to launcher exe
+const DEV_ROOT   = 'D:\\Jain Office Suite\\Jain Office Suite';
+
+const DOC_DIR    = IS_PACKED
+  ? path.join(process.resourcesPath, 'jaindocument')
+  : path.join(DEV_ROOT, 'jaindocument');
+
+const SHEET_DIR  = IS_PACKED
+  ? path.join(process.resourcesPath, 'jainsheet')
+  : path.join(DEV_ROOT, 'jainsheet');
+
+// Electron exe:
+// Installed: each app has its own electron.exe inside its node_modules
+// Dev: same path
+const DOC_EXE    = path.join(DOC_DIR,   'node_modules', 'electron', 'dist', 'electron.exe');
+const SHEET_EXE  = path.join(SHEET_DIR, 'node_modules', 'electron', 'dist', 'electron.exe');
 const RECENT_FILE = path.join(app.getPath('appData'), 'JainOfficeSuite', 'recent.json');
 
 // ── Recent files helpers ──────────────────────────────────────────────────────
@@ -44,13 +58,11 @@ function addRecent(entry) {
 
 // ── Launch helpers ────────────────────────────────────────────────────────────
 function launchApp(exePath, appDir, filePath) {
-  // Check if electron.exe exists in local node_modules
-  if (!fs.existsSync(exePath)) {
+  if (!fs.existsSync(exePath) || !fs.existsSync(appDir)) {
     const { dialog } = require('electron');
     dialog.showErrorBox(
       'App not ready',
-      'Please run "npm install --ignore-scripts" inside the ' +
-      path.basename(appDir) + ' folder first.\n\nPath checked:\n' + exePath
+      'Could not find app files.\n\nEXE: ' + exePath + '\nDIR: ' + appDir
     );
     return;
   }

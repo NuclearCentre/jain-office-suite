@@ -1,0 +1,19 @@
+# Node modules — never commit
+launcher/node_modules/
+jaindocument/node_modules/
+jainsheet/node_modules/
+
+# Build output — never commit
+launcher/dist/
+jaindocument/dist/
+jainsheet/dist/
+
+# Locks
+launcher/package-lock.json
+jaindocument/package-lock.json
+jainsheet/package-lock.json
+
+# Junk files
+Thumbs.db
+.DS_Store
+*.bak

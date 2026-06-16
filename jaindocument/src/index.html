@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JainDocument</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- MAIL MERGE MODAL -->
+<div id="mm-overlay" class="mm-overlay hidden">
+  <div class="mm-modal">
+    <div class="mm-header">
+      <span class="mm-title">&#9993; Mail Merge</span>
+      <button class="mm-close" id="mm-close">&#x2715;</button>
+    </div>
+    <div class="mm-body">
+
+      <!-- Step 1: No CSV loaded -->
+      <div id="mm-step-nodata" class="mm-step">
+        <div class="mm-step-icon">&#128194;</div>
+        <div class="mm-step-title">Load a CSV file to begin</div>
+        <div class="mm-step-desc">Your document can contain placeholders like <code>{{Name}}</code>, <code>{{Address}}</code>, <code>{{Email}}</code> etc. Each column header in the CSV becomes a field.</div>
+        <button class="mm-btn-primary" id="mm-btn-load-csv">&#128194; Choose CSV File</button>
+      </div>
+
+      <!-- Step 2: CSV loaded — preview & merge -->
+      <div id="mm-step-data" class="mm-step hidden">
+        <div class="mm-info-bar">
+          <div class="mm-info-item"><span class="mm-info-label">File</span><span id="mm-filename">—</span></div>
+          <div class="mm-info-item"><span class="mm-info-label">Records</span><span id="mm-record-count">0</span></div>
+          <div class="mm-info-item"><span class="mm-info-label">Fields</span><span id="mm-field-list">—</span></div>
+        </div>
+
+        <!-- Field inserter -->
+        <div class="mm-section-title">Insert field into document</div>
+        <div id="mm-field-btns" class="mm-field-btns"></div>
+
+        <!-- Preview navigator -->
+        <div class="mm-section-title">Preview</div>
+        <div class="mm-preview-nav">
+          <button class="mm-nav-btn" id="mm-prev-rec">&#8249;</button>
+          <span id="mm-rec-label" style="font-size:12px;padding:0 10px">Record 1 of 1</span>
+          <button class="mm-nav-btn" id="mm-next-rec">&#8250;</button>
+        </div>
+        <div id="mm-preview-box" class="mm-preview-box"></div>
+
+        <!-- Actions -->
+        <div class="mm-actions">
+          <button class="mm-btn-primary" id="mm-btn-merge-all">&#9993; Merge All Records into Document</button>
+          <button class="mm-btn-secondary" id="mm-btn-reload-csv">&#128194; Load Different CSV</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- PRINT PREVIEW MODAL -->
+<div id="print-preview-overlay" class="pp-overlay hidden">
+  <div class="pp-modal">
+    <div class="pp-toolbar">
+      <span class="pp-title">&#128438; Print Preview</span>
+      <div class="pp-toolbar-actions">
+        <button class="pp-btn" id="pp-zoom-out">&#8722;</button>
+        <span id="pp-zoom-label" style="font-size:12px;min-width:44px;text-align:center">100%</span>
+        <button class="pp-btn" id="pp-zoom-in">+</button>
+        <button class="pp-btn-primary" id="pp-print-btn">&#128438; Print</button>
+        <button class="pp-btn-close" id="pp-close">&#x2715; Close</button>
+      </div>
+    </div>
+    <div class="pp-body">
+      <div class="pp-page-wrap">
+        <div id="pp-page"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE CONTEXT MENU -->
+<div id="table-ctx-menu" class="ctx-menu hidden">
+  <div class="ctx-item" id="ctx-add-row-above">Insert Row Above</div>
+  <div class="ctx-item" id="ctx-add-row-below">Insert Row Below</div>
+  <div class="ctx-item" id="ctx-del-row">Delete Row</div>
+  <div class="ctx-divider"></div>
+  <div class="ctx-item" id="ctx-add-col-left">Insert Column Left</div>
+  <div class="ctx-item" id="ctx-add-col-right">Insert Column Right</div>
+  <div class="ctx-item" id="ctx-del-col">Delete Column</div>
+  <div class="ctx-divider"></div>
+  <div class="ctx-item" id="ctx-merge-cells">Merge Selected Cells</div>
+  <div class="ctx-item ctx-danger" id="ctx-del-table">Delete Table</div>
+</div>
+
+<!-- FILE SIDE PANEL OVERLAY -->
+<div id="file-overlay" class="file-overlay hidden"></div>
+<div id="file-panel" class="file-panel hidden">
+  <div class="file-panel-header">
+    <span class="file-panel-logo">J</span>
+    <span class="file-panel-title">JainDocument</span>
+    <button class="file-panel-close" id="btn-file-close" title="Close">&#x2715;</button>
+  </div>
+  <div class="file-panel-body">
+    <div class="file-panel-left">
+      <button class="fp-btn" id="fp-new"><span class="fp-icon">&#128196;</span><span class="fp-label">New</span></button>
+      <button class="fp-btn" id="fp-open"><span class="fp-icon">&#128194;</span><span class="fp-label">Open</span></button>
+      <button class="fp-btn" id="fp-save"><span class="fp-icon">&#128190;</span><span class="fp-label">Save</span></button>
+      <button class="fp-btn" id="fp-save-as"><span class="fp-icon">&#128203;</span><span class="fp-label">Save As</span><span class="fp-arrow">&#x203A;</span></button>
+      <div class="fp-divider"></div>
+      <button class="fp-btn" id="fp-recent"><span class="fp-icon">&#128336;</span><span class="fp-label">Recent Files</span><span class="fp-arrow">&#x203A;</span></button>
+      <div class="fp-divider"></div>
+      <button class="fp-btn" id="fp-share"><span class="fp-icon">&#128257;</span><span class="fp-label">Share(D)</span><span class="fp-arrow">&#x203A;</span></button>
+      <button class="fp-btn" id="fp-export-pdf"><span class="fp-icon">&#128462;</span><span class="fp-label">Export to PDF</span></button>
+      <button class="fp-btn" id="fp-export-picture"><span class="fp-icon">&#128444;</span><span class="fp-label">Export to Picture</span><span class="fp-arrow">&#x203A;</span></button>
+      <button class="fp-btn" id="fp-output-pptx"><span class="fp-icon">&#128209;</span><span class="fp-label">Output as PPTX</span><span class="fp-arrow">&#x203A;</span></button>
+      <div class="fp-divider"></div>
+      <button class="fp-btn" id="fp-print"><span class="fp-icon">&#128438;</span><span class="fp-label">Print</span><span class="fp-arrow">&#x203A;</span></button>
+      <button class="fp-btn" id="fp-print-preview"><span class="fp-icon">&#128196;</span><span class="fp-label">Print Preview</span></button>
+      <button class="fp-btn" id="fp-email"><span class="fp-icon">&#9993;</span><span class="fp-label">Send E-mail</span><span class="fp-arrow">&#x203A;</span></button>
+      <button class="fp-btn" id="fp-encrypt"><span class="fp-icon">&#128274;</span><span class="fp-label">Encrypt</span><span class="fp-arrow">&#x203A;</span></button>
+      <button class="fp-btn" id="fp-backup"><span class="fp-icon">&#128260;</span><span class="fp-label">Backup and Restore</span><span class="fp-arrow">&#x203A;</span></button>
+      <div class="fp-divider"></div>
+      <button class="fp-btn" id="fp-help"><span class="fp-icon">?</span><span class="fp-label">Help</span><span class="fp-arrow">&#x203A;</span></button>
+      <button class="fp-btn" id="fp-options"><span class="fp-icon">&#9881;</span><span class="fp-label">Options(L)</span><span class="fp-arrow">&#x203A;</span></button>
+      <button class="fp-btn fp-exit" id="fp-exit"><span class="fp-icon">&#x2192;</span><span class="fp-label">Exit(Q)</span></button>
+    </div>
+    <div class="file-panel-right" id="file-panel-right">
+      <div class="fp-right-default"><p style="color:#888;font-size:13px;margin-top:30px;text-align:center">Select an option from the left</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- TITLE BAR -->
+<div id="titlebar">
+  <div id="titlebar-left">
+    <span id="app-icon">J</span>
+    <span id="app-title">Untitled Document — JainDocument</span>
+  </div>
+  <!-- Min/Max/Close are now drawn natively by Windows (titleBarOverlay) -->
+</div>
+
+<!-- RIBBON TABS -->
+<div id="ribbon-tabs">
+  <button class="rtab file-tab" id="btn-file-tab">&#9776; File</button>
+  <button class="rtab active" data-tab="home">Home</button>
+  <button class="rtab" data-tab="insert">Insert</button>
+  <button class="rtab" data-tab="layout">Page Layout</button>
+  <button class="rtab" data-tab="references">References</button>
+  <button class="rtab" data-tab="review">Review</button>
+  <button class="rtab" data-tab="view">View</button>
+  <button class="rtab" data-tab="tools">Tools</button>
+</div>
+
+<!-- RIBBON PANELS -->
+<div id="ribbon">
+
+  <!-- HOME TAB -->
+  <div class="ribbon-panel active" data-panel="home">
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-paste" title="Paste (Ctrl+V)"><span class="ricon">&#128203;</span><span class="rlbl">Paste</span></button>
+          <div class="rbtn-col">
+            <button class="rbtn-sm" id="btn-cut"  title="Cut (Ctrl+X)">&#9986; Cut</button>
+            <button class="rbtn-sm" id="btn-copy" title="Copy (Ctrl+C)">&#128464; Copy</button>
+          </div>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-sm" id="btn-undo" title="Undo (Ctrl+Z)">&#8630; Undo</button>
+          <button class="rbtn-sm" id="btn-redo" title="Redo (Ctrl+Y)">&#8631; Redo</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Clipboard</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <select id="fontFamily" title="Font Family" class="font-select">
+            <option>Arial</option><option>Calibri</option><option>Cambria</option>
+            <option>Comic Sans MS</option><option>Courier New</option><option>Georgia</option>
+            <option>Helvetica</option><option>Impact</option><option>Palatino</option>
+            <option>Tahoma</option><option selected>Times New Roman</option>
+            <option>Trebuchet MS</option><option>Verdana</option>
+          </select>
+          <input type="number" id="fontSize" title="Font Size (pt)" class="size-input" value="12" min="6" max="96" step="1">
+        </div>
+        <div class="rrow">
+          <button class="rbtn-xs" id="btn-bold"      title="Bold (Ctrl+B)"><b>B</b></button>
+          <button class="rbtn-xs" id="btn-italic"    title="Italic (Ctrl+I)"><i>I</i></button>
+          <button class="rbtn-xs" id="btn-underline" title="Underline (Ctrl+U)"><u>U</u></button>
+          <button class="rbtn-xs" id="btn-strike"    title="Strikethrough"><s>S</s></button>
+          <button class="rbtn-xs" id="btn-super"     title="Superscript">X²</button>
+          <button class="rbtn-xs" id="btn-sub"       title="Subscript">X₂</button>
+          <button class="rbtn-xs" id="btn-clear-fmt" title="Clear Formatting">✕Fmt</button>
+          <label title="Font Color"       class="clr-label"><b class="clr-a" style="color:#c00">A</b><input type="color" id="fontColor"       value="#000000" class="clr-inp"></label>
+          <label title="Highlight Color"  class="clr-label"><span class="clr-h" style="background:#ff0">H</span><input type="color" id="highlightColor" value="#FFFF00" class="clr-inp"></label>
+          <label title="Page Background"  class="clr-label"><span class="clr-h" style="background:#fff;border:1px solid #ccc">Bg</span><input type="color" id="bgFillColor" value="#FFFFFF" class="clr-inp"></label>
+        </div>
+      </div>
+      <div class="rgroup-label">Font</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-xs" id="btn-align-left"    title="Align Left (Ctrl+L)">&#8676;</button>
+          <button class="rbtn-xs" id="btn-align-center"  title="Center (Ctrl+E)">&#8596;</button>
+          <button class="rbtn-xs" id="btn-align-right"   title="Align Right (Ctrl+R)">&#8677;</button>
+          <button class="rbtn-xs" id="btn-align-justify" title="Justify (Ctrl+J)">&#8644;</button>
+          <button class="rbtn-xs" id="btn-bullet"        title="Bullet List">&#8226;&#9776;</button>
+          <button class="rbtn-xs" id="btn-numbered"      title="Numbered List">1.&#9776;</button>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-xs" id="btn-indent"  title="Indent">&#8677;In</button>
+          <button class="rbtn-xs" id="btn-outdent" title="Outdent">&#8676;Out</button>
+          <select id="lineSpacing" title="Line Spacing" class="mini-select">
+            <option value="1">1.0×</option><option value="1.15" selected>1.15×</option>
+            <option value="1.5">1.5×</option><option value="2">2.0×</option>
+          </select>
+        </div>
+      </div>
+      <div class="rgroup-label">Paragraph</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-style" id="btn-h1"><b style="color:#1e4d8c">H1</b></button>
+          <button class="rbtn-style" id="btn-h2"><b style="color:#1e4d8c">H2</b></button>
+          <button class="rbtn-style" id="btn-h3"><b style="color:#555">H3</b></button>
+          <button class="rbtn-style" id="btn-h4"><b style="color:#555">H4</b></button>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-style" id="btn-normal">&#182; Normal</button>
+          <button class="rbtn-style" id="btn-quote">&ldquo; Quote</button>
+          <button class="rbtn-style" id="btn-code">&lt;/&gt; Code</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Styles</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-find" title="Find (Ctrl+F)"><span class="ricon">&#128269;</span><span class="rlbl">Find</span></button>
+          <div class="rbtn-col">
+            <button class="rbtn-sm" id="btn-find-replace" title="Replace (Ctrl+H)">&#8644; Replace</button>
+            <button class="rbtn-sm" id="btn-select-all"   title="Select All (Ctrl+A)">&#9645; Select All</button>
+          </div>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Editing</div>
+    </div>
+
+  </div>
+
+  <!-- INSERT TAB -->
+  <div class="ribbon-panel" data-panel="insert">
+
+    <div class="rgroup">
+      <div class="r2row" style="position:relative">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-table" title="Insert Table"><span class="ricon">&#9638;</span><span class="rlbl">Table</span></button>
+        </div>
+        <div class="rrow"></div>
+        <div id="tablePicker" style="display:none;position:absolute;top:72px;left:0;background:#fff;border:1px solid #ccc;padding:6px;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.2)">
+          <div id="tableGrid" style="gap:2px"></div>
+          <div id="tableGridLabel" style="font-size:11px;text-align:center;margin-top:4px;color:#555">0 × 0</div>
+        </div>
+      </div>
+      <div class="rgroup-label">Table</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-image" title="Insert Image"><span class="ricon">&#128247;</span><span class="rlbl">Image</span></button>
+          <button class="rbtn-lg" id="btn-link"  title="Insert Link"><span class="ricon">&#128279;</span><span class="rlbl">Link</span></button>
+          <div class="rbtn-col">
+            <button class="rbtn-sm" id="btn-hr"         title="Horizontal Line">&#8213; H-Line</button>
+            <button class="rbtn-sm" id="btn-page-break" title="Page Break">&#9631; Page Break</button>
+          </div>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-sm" id="btn-datetime" title="Date/Time">&#128337; Date/Time</button>
+          <button class="rbtn-sm" id="btn-page-num" title="Page Number">&#9839; Page No.</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Insert</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-header-footer" title="Header/Footer"><span class="ricon">&#8801;</span><span class="rlbl">Header/Footer</span></button>
+          <button class="rbtn-lg" id="btn-toc"           title="Table of Contents"><span class="ricon">&#9776;</span><span class="rlbl">TOC</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Document</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-xs special-char" title="©">&#169;</button>
+          <button class="rbtn-xs special-char" title="®">&#174;</button>
+          <button class="rbtn-xs special-char" title="™">&#8482;</button>
+          <button class="rbtn-xs special-char" title="°">&#176;</button>
+          <button class="rbtn-xs special-char" title="±">&#177;</button>
+          <button class="rbtn-xs special-char" title="—">&#8212;</button>
+          <button class="rbtn-xs special-char" title="–">&#8211;</button>
+          <button class="rbtn-xs special-char" title="•">&#8226;</button>
+          <button class="rbtn-xs special-char" title="§">&#167;</button>
+          <button class="rbtn-xs special-char" title="¶">&#182;</button>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-xs special-char" title="€">&#8364;</button>
+          <button class="rbtn-xs special-char" title="£">&#163;</button>
+          <button class="rbtn-xs special-char" title="¥">&#165;</button>
+          <button class="rbtn-xs special-char" title="½">&#189;</button>
+          <button class="rbtn-xs special-char" title="¼">&#188;</button>
+          <button class="rbtn-xs special-char" title="¾">&#190;</button>
+          <button class="rbtn-xs special-char" title="×">&#215;</button>
+          <button class="rbtn-xs special-char" title="÷">&#247;</button>
+          <button class="rbtn-xs special-char" title="≠">&#8800;</button>
+          <button class="rbtn-xs special-char" title="∞">&#8734;</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Symbols</div>
+    </div>
+
+  </div>
+
+  <!-- PAGE LAYOUT TAB (renamed from Layout) -->
+  <div class="ribbon-panel" data-panel="layout">
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-margin-normal" title="Normal margins"><span class="ricon">&#9711;</span><span class="rlbl">Normal</span></button>
+          <button class="rbtn-lg" id="btn-margin-narrow" title="Narrow margins"><span class="ricon">&#9723;</span><span class="rlbl">Narrow</span></button>
+          <button class="rbtn-lg" id="btn-margin-wide"   title="Wide margins"><span class="ricon">&#9645;</span><span class="rlbl">Wide</span></button>
+        </div>
+        <div class="rrow">
+          <span style="font-size:10px;color:#888;padding-left:4px">Normal: 2.54cm &nbsp;|&nbsp; Narrow: 1.27cm &nbsp;|&nbsp; Wide: 5.08cm</span>
+        </div>
+      </div>
+      <div class="rgroup-label">Margins</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-portrait"  title="Portrait orientation"><span class="ricon">&#x1F4C4;</span><span class="rlbl">Portrait</span></button>
+          <button class="rbtn-lg" id="btn-landscape" title="Landscape orientation"><span class="ricon">&#x1F5CE;</span><span class="rlbl">Landscape</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Orientation</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-size-a4"     title="A4 page size"><span class="ricon">&#128196;</span><span class="rlbl">A4</span></button>
+          <button class="rbtn-lg" id="btn-size-a3"     title="A3 page size"><span class="ricon">&#128196;</span><span class="rlbl">A3</span></button>
+          <button class="rbtn-lg" id="btn-size-a5"     title="A5 page size"><span class="ricon">&#128196;</span><span class="rlbl">A5</span></button>
+          <button class="rbtn-lg" id="btn-size-letter" title="Letter page size"><span class="ricon">&#128196;</span><span class="rlbl">Letter</span></button>
+        </div>
+        <div class="rrow">
+          <span style="font-size:10px;color:#888;padding-left:4px">A4: 21×29.7cm &nbsp;|&nbsp; A3: 29.7×42cm &nbsp;|&nbsp; A5: 14.8×21cm &nbsp;|&nbsp; Letter: 21.6×27.9cm</span>
+        </div>
+      </div>
+      <div class="rgroup-label">Page Size</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-col-1" title="1 Column"><span class="ricon">&#9646;</span><span class="rlbl">1 Col</span></button>
+          <button class="rbtn-lg" id="btn-col-2" title="2 Columns"><span class="ricon">&#9646;&#9646;</span><span class="rlbl">2 Col</span></button>
+          <button class="rbtn-lg" id="btn-col-3" title="3 Columns"><span class="ricon">&#9646;&#9646;&#9646;</span><span class="rlbl">3 Col</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Columns</div>
+    </div>
+
+  </div>
+
+  <!-- REFERENCES TAB (NEW) -->
+  <div class="ribbon-panel" data-panel="references">
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-toc-ref" title="Table of Contents"><span class="ricon">&#9776;</span><span class="rlbl">TOC</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Contents</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-footnote" title="Insert Footnote"><span class="ricon">&#9839;</span><span class="rlbl">Footnote</span></button>
+          <button class="rbtn-lg" id="btn-endnote"  title="Insert Endnote"><span class="ricon">&#8224;</span><span class="rlbl">Endnote</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Footnotes</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-citation" title="Insert Citation"><span class="ricon">&#128220;</span><span class="rlbl">Citation</span></button>
+          <button class="rbtn-lg" id="btn-bibliography" title="Bibliography"><span class="ricon">&#128218;</span><span class="rlbl">Bibliography</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Citations</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-bookmark" title="Insert Bookmark"><span class="ricon">&#128278;</span><span class="rlbl">Bookmark</span></button>
+          <button class="rbtn-lg" id="btn-crossref"  title="Cross Reference"><span class="ricon">&#128279;</span><span class="rlbl">Cross-Ref</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Links</div>
+    </div>
+
+  </div>
+
+  <!-- REVIEW TAB -->
+  <div class="ribbon-panel" data-panel="review">
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-spell-toggle" title="Toggle Spell Check"><span class="ricon">&#10003;</span><span class="rlbl">Spelling</span></button>
+          <div class="rbtn-col">
+            <span id="spellStatus" style="font-size:11px;color:#1e4d8c;font-weight:600;padding:2px 4px">Spell: ON</span>
+          </div>
+        </div>
+        <div class="rrow">
+          <div style="position:relative">
+            <button class="rbtn-sm" id="btn-word-count" title="Word Count">&#128221; Word Count</button>
+            <div id="wordCountPanel" style="display:none;position:absolute;top:26px;left:0;background:#fff;border:1px solid #ccc;padding:12px;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.2);font-size:13px;min-width:180px;border-radius:4px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="rgroup-label">Proofing</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-track-changes" title="Track Changes"><span class="ricon">&#9998;</span><span class="rlbl">Track Changes</span></button>
+          <div class="rbtn-col">
+            <button class="rbtn-sm" id="btn-accept-change" title="Accept Change">&#10003; Accept</button>
+            <button class="rbtn-sm" id="btn-reject-change" title="Reject Change">&#10007; Reject</button>
+          </div>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-sm" id="btn-accept-all" title="Accept All Changes">&#10003;&#10003; Accept All</button>
+          <button class="rbtn-sm" id="btn-reject-all" title="Reject All Changes">&#10007;&#10007; Reject All</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Tracking</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-add-comment" title="Add Comment"><span class="ricon">&#128172;</span><span class="rlbl">Comment</span></button>
+          <div class="rbtn-col">
+            <button class="rbtn-sm" id="btn-prev-comment" title="Previous Comment">&#8249; Prev</button>
+            <button class="rbtn-sm" id="btn-next-comment" title="Next Comment">&#8250; Next</button>
+          </div>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-sm" id="btn-delete-comment"     title="Delete Comment">&#128465; Delete</button>
+          <button class="rbtn-sm" id="btn-delete-all-comments" title="Delete All Comments">&#128465;&#128465; Delete All</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Comments</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-find-review"         title="Find (Ctrl+F)"><span class="ricon">&#128269;</span><span class="rlbl">Find</span></button>
+          <button class="rbtn-lg" id="btn-find-replace-review" title="Replace (Ctrl+H)"><span class="ricon">&#8644;</span><span class="rlbl">Replace</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Editing</div>
+    </div>
+
+  </div>
+
+  <!-- VIEW TAB -->
+  <div class="ribbon-panel" data-panel="view">
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-reading-mode"    title="Reading Mode"><span class="ricon">&#128214;</span><span class="rlbl">Reading</span></button>
+          <button class="rbtn-lg" id="btn-distraction-free" title="Focus/Distraction-Free"><span class="ricon">&#9635;</span><span class="rlbl">Focus</span></button>
+          <button class="rbtn-lg" id="btn-fullscreen"      title="Full Screen (F11)"><span class="ricon">&#9974;</span><span class="rlbl">Full Screen</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Views</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-ruler-toggle" title="Toggle Ruler"><span class="ricon">&#8213;</span><span class="rlbl">Ruler</span></button>
+          <button class="rbtn-lg" id="btn-fmt-marks"    title="Formatting Marks"><span class="ricon">&#182;</span><span class="rlbl">Marks</span></button>
+          <button class="rbtn-lg" id="btn-dark-mode"    title="Toggle Dark Mode"><span class="ricon">&#9790;</span><span class="rlbl">Dark Mode</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Show</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-zoom-out"   title="Zoom Out"><span class="ricon">&#8722;</span><span class="rlbl">Zoom Out</span></button>
+          <button class="rbtn-lg" id="btn-zoom-reset" title="Reset Zoom"><span class="ricon">&#8635;</span><span class="rlbl">100%</span></button>
+          <button class="rbtn-lg" id="btn-zoom-in"    title="Zoom In"><span class="ricon">+</span><span class="rlbl">Zoom In</span></button>
+        </div>
+        <div class="rrow">
+          <span id="zoomDisplay" style="font-size:11px;font-weight:600;padding:0 4px;min-width:44px;text-align:center">100%</span>
+          <input type="range" id="zoomSlider" min="50" max="200" value="100" style="width:120px">
+        </div>
+      </div>
+      <div class="rgroup-label">Zoom</div>
+    </div>
+
+  </div>
+
+  <!-- TOOLS TAB (NEW) -->
+  <div class="ribbon-panel" data-panel="tools">
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-word-count-tools" title="Word Count"><span class="ricon">&#128221;</span><span class="rlbl">Word Count</span></button>
+          <button class="rbtn-lg" id="btn-char-count"       title="Character Count"><span class="ricon">&#128292;</span><span class="rlbl">Char Count</span></button>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-sm" id="btn-wc-target-tools" title="Set Word Count Target">&#127919; Set Target</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Statistics</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-macro-record" title="Record Macro"><span class="ricon">&#9679;</span><span class="rlbl">Record</span></button>
+          <button class="rbtn-lg" id="btn-macro-stop"   title="Stop Macro"><span class="ricon">&#9632;</span><span class="rlbl">Stop</span></button>
+          <button class="rbtn-lg" id="btn-macro-play"   title="Run Macro"><span class="ricon">&#9654;</span><span class="rlbl">Run</span></button>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-sm" id="btn-macro-list" title="View Macros">&#9776; View Macros</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Macros</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-mm-load"    title="Load CSV file for Mail Merge"><span class="ricon">&#128194;</span><span class="rlbl">Load CSV</span></button>
+          <button class="rbtn-lg" id="btn-mm-preview" title="Preview merged document"><span class="ricon">&#128196;</span><span class="rlbl">Preview</span></button>
+          <button class="rbtn-lg" id="btn-mm-merge"   title="Merge all records into document"><span class="ricon">&#9993;</span><span class="rlbl">Merge All</span></button>
+        </div>
+        <div class="rrow">
+          <button class="rbtn-sm" id="btn-mm-insert-field" title="Insert a merge field at cursor">&#43; Insert Field</button>
+          <button class="rbtn-sm" id="btn-mm-clear"        title="Clear mail merge data">&#x2715; Clear</button>
+        </div>
+      </div>
+      <div class="rgroup-label">Mail Merge</div>
+    </div>
+
+    <div class="rgroup">
+      <div class="r2row">
+        <div class="rrow">
+          <button class="rbtn-lg" id="btn-options-tools" title="Options"><span class="ricon">&#9881;</span><span class="rlbl">Options</span></button>
+          <button class="rbtn-lg" id="btn-backup-tools"  title="Backup"><span class="ricon">&#128190;</span><span class="rlbl">Backup</span></button>
+        </div>
+        <div class="rrow"></div>
+      </div>
+      <div class="rgroup-label">Settings</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- TAB BAR -->
+<div id="tab-bar">
+  <div id="tab-list"></div>
+  <button id="tab-new-btn" title="New Tab (Ctrl+T)">&#43;</button>
+</div>
+
+<!-- FIND BAR -->
+<div id="findBar" style="display:none;align-items:center;gap:6px;padding:4px 12px;background:#f0f4ff;border-bottom:1px solid #c0cfe0">
+  <input type="text" id="findInput" placeholder="Find..." style="padding:3px 7px;font-size:13px;border:1px solid #aaa;border-radius:3px;width:180px">
+  <input type="text" id="replaceInput" placeholder="Replace..." style="padding:3px 7px;font-size:13px;border:1px solid #aaa;border-radius:3px;width:180px">
+  <button id="btn-find-next" style="padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:3px;cursor:pointer">Find Next</button>
+  <button id="btn-replace-all" style="padding:3px 10px;font-size:12px;border:1px solid #aaa;border-radius:3px;cursor:pointer">Replace All</button>
+  <button id="btn-find-close" style="padding:3px 8px;font-size:12px;color:red;border:1px solid #aaa;border-radius:3px;cursor:pointer">&#x2715;</button>
+  <span id="findStatus" style="font-size:11px;color:#555;margin-left:6px"></span>
+</div>
+
+<!-- RULER -->
+<div id="ruler" style="display:none">
+  <canvas id="ruler-canvas"></canvas>
+  <!-- Left margin handle -->
+  <div id="ruler-margin-left"  class="ruler-handle ruler-margin" title="Drag to set left margin"></div>
+  <!-- Right margin handle -->
+  <div id="ruler-margin-right" class="ruler-handle ruler-margin ruler-margin-r" title="Drag to set right margin"></div>
+  <!-- Tab stops rendered here dynamically -->
+  <div id="ruler-tabs"></div>
+</div>
+
+<!-- DOCUMENT AREA -->
+<div id="doc-area">
+  <div id="zoom-wrapper">
+    <!-- HEADER ZONE -->
+    <div id="header-zone" style="display:none;width:794px;margin:0 auto">
+      <div class="header-footer-bar">
+        <span style="font-size:11px;color:#555;font-weight:600">&#8213; Header</span>
+        <button id="btn-close-header" style="font-size:11px;padding:2px 8px;cursor:pointer;border:1px solid #ccc;border-radius:3px;margin-left:auto;background:#fff">Close Header/Footer</button>
+      </div>
+      <div id="doc-header" contenteditable="true" spellcheck="true" data-placeholder="Click to add header..."></div>
+    </div>
+
+    <div id="page" contenteditable="true" spellcheck="true"></div>
+
+    <!-- FOOTER ZONE -->
+    <div id="footer-zone" style="display:none;width:794px;margin:0 auto">
+      <div id="doc-footer" contenteditable="true" spellcheck="true" data-placeholder="Click to add footer..."></div>
+      <div class="header-footer-bar">
+        <span style="font-size:11px;color:#555;font-weight:600">&#8213; Footer</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMMENT PANEL (right margin) -->
+  <div id="comment-panel" class="comment-panel hidden"></div>
+</div>
+
+<!-- WORD COUNT TARGET BAR -->
+<div id="wc-target-bar" class="wc-target-bar">
+  <span style="font-size:11px;color:#555">Word Target:</span>
+  <div id="wc-progress-wrap" style="flex:1;height:8px;background:#ddd;border-radius:4px;overflow:hidden;max-width:300px">
+    <div id="wc-progress-bar" style="height:100%;background:#1e4d8c;border-radius:4px;width:0%;transition:width 0.3s"></div>
+  </div>
+  <span id="wc-target-label" style="font-size:11px;color:#555">0 / 0 words</span>
+  <button id="btn-clear-target" style="font-size:11px;padding:1px 6px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff">✕</button>
+</div>
+
+<!-- STATUS BAR -->
+<div id="statusbar">
+  <span id="pageCount">Page 1</span>
+  <span id="wordCount">Words: 0</span>
+  <span id="charCount">Chars: 0</span>
+  <span id="cursorPos">Ln 1, Col 1</span>
+  <span id="saveStatus"></span>
+  <span style="display:flex;align-items:center;gap:4px;margin-left:auto">
+    <button id="zoomMinus" style="border:none;background:none;cursor:pointer;font-size:16px;color:#fff;line-height:1">&#8722;</button>
+    <input type="range" id="zoomSlider2" min="50" max="200" value="100" style="width:80px;accent-color:#90caf9">
+    <span id="zoomDisplay2" style="font-size:11px;min-width:38px;text-align:center">100%</span>
+    <button id="zoomPlus" style="border:none;background:none;cursor:pointer;font-size:16px;color:#fff;line-height:1">+</button>
+  </span>
+</div>
+
+<!-- READING MODE OVERLAY -->
+<div id="reading-overlay" class="reading-overlay hidden">
+  <div class="reading-toolbar">
+    <span style="font-weight:600;font-size:14px">&#128214; Reading Mode</span>
+    <div style="display:flex;gap:8px;margin-left:auto">
+      <button class="pp-btn" id="reading-zoom-out">&#8722;</button>
+      <span id="reading-zoom-label" style="font-size:12px;min-width:44px;text-align:center;color:#fff">100%</span>
+      <button class="pp-btn" id="reading-zoom-in">+</button>
+      <button class="pp-btn-close" id="btn-close-reading">&#x2715; Exit Reading</button>
+    </div>
+  </div>
+  <div class="reading-body">
+    <div id="reading-page"></div>
+  </div>
+</div>
+
+<!-- DISTRACTION-FREE OVERLAY -->
+<div id="df-overlay" class="df-overlay hidden">
+  <div id="df-exit-hint">Press Esc or move mouse to top to exit focus mode</div>
+  <div id="df-toolbar" class="df-toolbar">
+    <span style="font-size:13px;color:#ccc;font-weight:600">&#9635; Focus Mode</span>
+    <button id="btn-df-save" class="df-btn">&#128190; Save</button>
+    <button id="btn-df-exit" class="df-btn df-btn-exit">&#x2715; Exit</button>
+  </div>
+  <div id="df-doc-area">
+    <div id="df-page" contenteditable="true" spellcheck="true"></div>
+  </div>
+  <div id="df-status">
+    <span id="df-word-count">Words: 0</span>
+    <span id="df-char-count">Chars: 0</span>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,317 @@
+/* ── Reset & Base ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 13px;
+  background: #ebebeb;
+  color: #1a1a1a;
+  user-select: none;
+}
+
+body {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+/* ── Sidebar ──────────────────────────────────────────────────────────── */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  height: 100%;
+  background: #f7f7f7;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Brand header */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 14px 16px;
+  border-bottom: 2px solid #C9A227;
+  background: #fff;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0D1B4B;
+  letter-spacing: 1px;
+}
+
+.brand-ver {
+  font-size: 10px;
+  color: #999;
+  margin-top: 2px;
+}
+
+/* Section labels */
+.sidebar-section {
+  padding: 12px 14px 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #aaa;
+}
+
+/* App tiles */
+.app-tile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.12s;
+}
+
+.app-tile:hover {
+  background: #ebebeb;
+}
+
+.app-tile.active {
+  background: #e3eaf5;
+  border-left: 3px solid #0D1B4B;
+}
+
+.app-tile img {
+  width: 38px;
+  height: 38px;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+
+.app-tile-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+}
+
+.app-tile-desc {
+  font-size: 10px;
+  color: #999;
+  margin-top: 1px;
+}
+
+/* Divider */
+.sidebar-divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 6px 14px;
+}
+
+/* Recent list in sidebar */
+.recent-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.recent-empty {
+  padding: 10px 14px;
+  font-size: 11px;
+  color: #bbb;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.recent-item:hover {
+  background: #e8e8e8;
+}
+
+.recent-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.recent-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.recent-name {
+  font-size: 11px;
+  color: #444;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-time {
+  font-size: 10px;
+  color: #bbb;
+  margin-top: 1px;
+}
+
+/* ── Main area ────────────────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px;
+  overflow-y: auto;
+  background: #ebebeb;
+}
+
+/* Main header */
+.main-header {
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.main-header-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0D1B4B;
+  letter-spacing: 0.5px;
+}
+
+.main-header-sub {
+  font-size: 12px;
+  color: #999;
+  margin-top: 3px;
+}
+
+/* Section labels in main */
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+/* ── Quick Start cards ────────────────────────────────────────────────── */
+.quickstart-grid {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+.qs-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.qs-card:hover {
+  border-color: #C9A227;
+  box-shadow: 0 2px 10px rgba(201,162,39,0.15);
+}
+
+.qs-icon {
+  font-size: 28px;
+  color: #0D1B4B;
+  line-height: 1;
+}
+
+.qs-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+/* ── Recent files grid ────────────────────────────────────────────────── */
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.recent-grid-empty {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: #bbb;
+  padding: 16px 0;
+  line-height: 1.8;
+}
+
+.recent-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  overflow: hidden;
+}
+
+.recent-card:hover {
+  border-color: #0D1B4B;
+  box-shadow: 0 2px 8px rgba(13,27,75,0.1);
+}
+
+.recent-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.recent-card-name {
+  font-size: 11px;
+  color: #333;
+  font-weight: 600;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-card-time {
+  font-size: 10px;
+  color: #bbb;
+}
+
+/* ── Scrollbar styling ────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #aaa; }

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jain Office Suite</title>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <img id="brand-icon" alt="Jain Office Suite" class="brand-icon"/>
+      <div class="brand-text">
+        <div class="brand-name">JAIN OFFICE</div>
+        <div class="brand-ver">Version 1.0.0</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Applications</div>
+
+    <div class="app-tile active" id="tile-doc">
+      <img id="icon-doc" alt="JainDocument"/>
+      <div class="app-tile-info">
+        <div class="app-tile-name">JainDocument</div>
+        <div class="app-tile-desc">Word processor</div>
+      </div>
+    </div>
+
+    <div class="app-tile" id="tile-sheet">
+      <img id="icon-sheet" alt="JainSheet"/>
+      <div class="app-tile-info">
+        <div class="app-tile-name">JainSheet</div>
+        <div class="app-tile-desc">Spreadsheet</div>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">Recent Files</div>
+    <div class="recent-list" id="recent-list">
+      <div class="recent-empty">No recent files</div>
+    </div>
+
+  </aside>
+
+  <!-- Main area -->
+  <main class="main">
+
+    <div class="main-header">
+      <div class="main-header-title" id="main-title">JainDocument</div>
+      <div class="main-header-sub"   id="main-sub">Word Processor</div>
+    </div>
+
+    <div class="section-label">Quick Start</div>
+    <div class="quickstart-grid">
+      <div class="qs-card" id="qs-new">
+        <div class="qs-icon">+</div>
+        <div class="qs-label" id="qs-new-label">New Document</div>
+      </div>
+      <div class="qs-card" id="qs-open">
+        <div class="qs-icon">&#128193;</div>
+        <div class="qs-label" id="qs-open-label">Open File</div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:28px">Recent</div>
+    <div class="recent-grid" id="recent-grid">
+      <div class="recent-grid-empty">No recent files yet.<br/>Open a file to get started.</div>
+    </div>
+
+  </main>
+
+<script>
+'use strict';
+
+var activeApp  = 'doc';
+var lastRecent = [];
+
+document.getElementById('brand-icon').src = 'assets/icon-suite.png';
+document.getElementById('icon-doc').src   = 'assets/icon-doc.png';
+document.getElementById('icon-sheet').src = 'assets/icon-sheet.png';
+
+document.getElementById('tile-doc').addEventListener('click', function () {
+  selectApp('doc');
+});
+document.getElementById('tile-sheet').addEventListener('click', function () {
+  selectApp('sheet');
+});
+
+document.getElementById('qs-new').addEventListener('click', function () {
+  if (activeApp === 'doc') { window.electronAPI.launchDocument(null); }
+  else                      { window.electronAPI.launchSheet(null);   }
+});
+document.getElementById('qs-open').addEventListener('click', function () {
+  if (activeApp === 'doc') { window.electronAPI.launchDocument(null); }
+  else                      { window.electronAPI.launchSheet(null);   }
+});
+
+function selectApp(app) {
+  activeApp = app;
+  document.querySelectorAll('.app-tile').forEach(function (t) {
+    t.classList.remove('active');
+  });
+  document.getElementById('tile-' + app).classList.add('active');
+  if (app === 'doc') {
+    document.getElementById('main-title').textContent    = 'JainDocument';
+    document.getElementById('main-sub').textContent      = 'Word Processor';
+    document.getElementById('qs-new-label').textContent  = 'New Document';
+    document.getElementById('qs-open-label').textContent = 'Open Document';
+  } else {
+    document.getElementById('main-title').textContent    = 'JainSheet';
+    document.getElementById('main-sub').textContent      = 'Spreadsheet';
+    document.getElementById('qs-new-label').textContent  = 'New Spreadsheet';
+    document.getElementById('qs-open-label').textContent = 'Open Spreadsheet';
+  }
+  renderRecentGrid(lastRecent);
+}
+
+function timeAgo(ts) {
+  var diff = Date.now() - ts;
+  var m = Math.floor(diff / 60000);
+  var h = Math.floor(diff / 3600000);
+  var d = Math.floor(diff / 86400000);
+  if (m < 1)  return 'Just now';
+  if (m < 60) return m + 'm ago';
+  if (h < 24) return h + 'h ago';
+  if (d < 7)  return d + 'd ago';
+  return new Date(ts).toLocaleDateString();
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function renderRecentSidebar(list) {
+  var el = document.getElementById('recent-list');
+  el.innerHTML = '';
+  if (!list || list.length === 0) {
+    el.innerHTML = '<div class="recent-empty">No recent files</div>';
+    return;
+  }
+  list.slice(0, 6).forEach(function (r) {
+    var color = r.app === 'JainDocument' ? '#1e4d8c' : '#267a44';
+    var item  = document.createElement('div');
+    item.className = 'recent-item';
+    var dot  = document.createElement('div');
+    dot.className = 'recent-dot';
+    dot.style.background = color;
+    var info = document.createElement('div');
+    info.className = 'recent-info';
+    var name = document.createElement('div');
+    name.className   = 'recent-name';
+    name.textContent = r.name;
+    var time = document.createElement('div');
+    time.className   = 'recent-time';
+    time.textContent = timeAgo(r.time);
+    info.appendChild(name);
+    info.appendChild(time);
+    item.appendChild(dot);
+    item.appendChild(info);
+    item.addEventListener('click', (function (p, a) {
+      return function () { openRecent(p, a); };
+    }(r.path, r.app)));
+    el.appendChild(item);
+  });
+}
+
+function renderRecentGrid(list) {
+  var el = document.getElementById('recent-grid');
+  el.innerHTML = '';
+  var filtered = (list || []).filter(function (r) {
+    return activeApp === 'doc' ? r.app === 'JainDocument' : r.app === 'JainSheet';
+  });
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="recent-grid-empty">No recent files yet.<br/>Open a file to get started.</div>';
+    return;
+  }
+  filtered.slice(0, 8).forEach(function (r) {
+    var color = r.app === 'JainDocument' ? '#1e4d8c' : '#267a44';
+    var ext   = r.name.split('.').pop().toUpperCase();
+    var card  = document.createElement('div');
+    card.className = 'recent-card';
+    var ico  = document.createElement('div');
+    ico.className        = 'recent-card-icon';
+    ico.style.background = color;
+    ico.textContent      = ext;
+    var nm   = document.createElement('div');
+    nm.className   = 'recent-card-name';
+    nm.title       = r.name;
+    nm.textContent = r.name;
+    var tm   = document.createElement('div');
+    tm.className   = 'recent-card-time';
+    tm.textContent = timeAgo(r.time);
+    card.appendChild(ico);
+    card.appendChild(nm);
+    card.appendChild(tm);
+    card.addEventListener('click', (function (p, a) {
+      return function () { openRecent(p, a); };
+    }(r.path, r.app)));
+    el.appendChild(card);
+  });
+}
+
+function openRecent(filePath, appName) {
+  if (appName === 'JainDocument') { window.electronAPI.launchDocument(filePath); }
+  else                             { window.electronAPI.launchSheet(filePath);   }
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  window.electronAPI.loadRecent().then(function (list) {
+    lastRecent = list || [];
+    renderRecentSidebar(lastRecent);
+    renderRecentGrid(lastRecent);
+  });
+  window.electronAPI.onRecentUpdated(function (list) {
+    lastRecent = list || [];
+    renderRecentSidebar(lastRecent);
+    renderRecentGrid(lastRecent);
+  });
+});
+</script>
+
+</body>
+</html>

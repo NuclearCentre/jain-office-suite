@@ -7,8 +7,6 @@ const { spawn } = require('child_process');
 // ── Paths ─────────────────────────────────────────────────────────────────────
 const IS_PACKED  = app.isPackaged;
 
-// Dev mode: apps are sibling folders in suite root
-// Installed mode: apps are in resources\ folder next to launcher exe
 const DEV_ROOT   = 'D:\\Jain Office Suite\\Jain Office Suite';
 
 const DOC_DIR    = IS_PACKED
@@ -19,12 +17,29 @@ const SHEET_DIR  = IS_PACKED
   ? path.join(process.resourcesPath, 'jainsheet')
   : path.join(DEV_ROOT, 'jainsheet');
 
-// Electron exe:
-// Installed: each app has its own electron.exe inside its node_modules
-// Dev: same path
 const DOC_EXE    = path.join(DOC_DIR,   'node_modules', 'electron', 'dist', 'electron.exe');
 const SHEET_EXE  = path.join(SHEET_DIR, 'node_modules', 'electron', 'dist', 'electron.exe');
 const RECENT_FILE = path.join(app.getPath('appData'), 'JainOfficeSuite', 'recent.json');
+
+// ── File type routing ─────────────────────────────────────────────────────────
+const DOC_EXTENSIONS   = new Set(['doc', 'docx']);
+const SHEET_EXTENSIONS = new Set(['xls', 'xlsx']);
+
+function getFileArg() {
+  // process.argv[0] = electron exe, process.argv[1] = app dir (when packaged)
+  // process.argv[2] onwards may contain the file path passed by Windows
+  // We scan all args for an existing file path with a known extension
+  const args = process.argv.slice(IS_PACKED ? 1 : 2);
+  for (const arg of args) {
+    if (!arg || arg.startsWith('-') || arg.startsWith('--')) continue;
+    // Must look like a file path (has a dot, exists on disk)
+    const ext = arg.split('.').pop().toLowerCase();
+    if ((DOC_EXTENSIONS.has(ext) || SHEET_EXTENSIONS.has(ext)) && fs.existsSync(arg)) {
+      return { filePath: arg, ext };
+    }
+  }
+  return null;
+}
 
 // ── Recent files helpers ──────────────────────────────────────────────────────
 function loadRecent() {
@@ -117,6 +132,26 @@ ipcMain.on('recent:openFolder', function (_e, filePath) {
 });
 
 // ── App lifecycle ─────────────────────────────────────────────────────────────
-app.whenReady().then(createWindow);
+app.whenReady().then(function () {
+  // Check if launched with a file argument (double-click or "Open with" in Explorer)
+  const fileArg = getFileArg();
+
+  if (fileArg) {
+    // A file was passed — route directly to the correct app, skip launcher UI
+    if (DOC_EXTENSIONS.has(fileArg.ext)) {
+      launchApp(DOC_EXE, DOC_DIR, fileArg.filePath);
+      addRecent({ name: path.basename(fileArg.filePath), path: fileArg.filePath, app: 'JainDocument' });
+    } else if (SHEET_EXTENSIONS.has(fileArg.ext)) {
+      launchApp(SHEET_EXE, SHEET_DIR, fileArg.filePath);
+      addRecent({ name: path.basename(fileArg.filePath), path: fileArg.filePath, app: 'JainSheet' });
+    }
+    // Quit launcher immediately — the child app is now running independently
+    app.quit();
+  } else {
+    // No file argument — show the launcher UI as normal
+    createWindow();
+  }
+});
+
 app.on('window-all-closed', function () { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', function () { if (!mainWindow) createWindow(); });

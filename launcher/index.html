@@ -22,17 +22,17 @@
     <div class="sidebar-section">Applications</div>
 
     <div class="app-tile active" id="tile-doc">
-      <img id="icon-doc" alt="JainDocument"/>
+      <img id="icon-doc" alt="Jain Document"/>
       <div class="app-tile-info">
-        <div class="app-tile-name">JainDocument</div>
+        <div class="app-tile-name">Jain Document</div>
         <div class="app-tile-desc">Word processor</div>
       </div>
     </div>
 
     <div class="app-tile" id="tile-sheet">
-      <img id="icon-sheet" alt="JainSheet"/>
+      <img id="icon-sheet" alt="Jain Sheet"/>
       <div class="app-tile-info">
-        <div class="app-tile-name">JainSheet</div>
+        <div class="app-tile-name">Jain Sheet</div>
         <div class="app-tile-desc">Spreadsheet</div>
       </div>
     </div>
@@ -49,7 +49,7 @@
   <main class="main">
 
     <div class="main-header">
-      <div class="main-header-title" id="main-title">JainDocument</div>
+      <div class="main-header-title" id="main-title">Jain Document</div>
       <div class="main-header-sub"   id="main-sub">Word Processor</div>
     </div>
 
@@ -105,12 +105,12 @@ function selectApp(app) {
   });
   document.getElementById('tile-' + app).classList.add('active');
   if (app === 'doc') {
-    document.getElementById('main-title').textContent    = 'JainDocument';
+    document.getElementById('main-title').textContent    = 'Jain Document';
     document.getElementById('main-sub').textContent      = 'Word Processor';
     document.getElementById('qs-new-label').textContent  = 'New Document';
     document.getElementById('qs-open-label').textContent = 'Open Document';
   } else {
-    document.getElementById('main-title').textContent    = 'JainSheet';
+    document.getElementById('main-title').textContent    = 'Jain Sheet';
     document.getElementById('main-sub').textContent      = 'Spreadsheet';
     document.getElementById('qs-new-label').textContent  = 'New Spreadsheet';
     document.getElementById('qs-open-label').textContent = 'Open Spreadsheet';

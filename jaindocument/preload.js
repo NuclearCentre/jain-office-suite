@@ -29,6 +29,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadSettings: ()      => ipcRenderer.invoke('settings:load'),
   saveSettings: (data)  => ipcRenderer.invoke('settings:save', data),
 
+  // Font Dialog (opens child BrowserWindow via main.js)
+  openFontDialog:      (state) => ipcRenderer.send('dialog:openFontDialog', state),
+  onFontDialogApply:   (cb)    => ipcRenderer.on('font-dialog:apply',   (_e, data) => cb(data)),
+  onTextEffectsResult: (cb)    => ipcRenderer.on('text-effects:result', (_e, data) => cb(data)),
+
   // Mail Merge
   openCsv: () => ipcRenderer.invoke('dialog:openCsv'),
 

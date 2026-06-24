@@ -477,16 +477,32 @@ async function saveToPath(filePath) {
   }
 }
 
-async function showSaveAsDialog() {
+async function showSaveAsDialog(preferExt) {
+  // Build filter list with preferExt format first so it is pre-selected
+  const allFilters = [
+    { name: 'Word Document (.docx)',  extensions: ['docx'] },
+    { name: 'Word Document (.doc)',   extensions: ['doc']  },
+    { name: 'Web Page (.html)',       extensions: ['html'] },
+    { name: 'Plain Text (.txt)',      extensions: ['txt']  },
+  ];
+  const filters = preferExt
+    ? [
+        ...allFilters.filter(f => f.extensions[0] === preferExt),
+        ...allFilters.filter(f => f.extensions[0] !== preferExt),
+      ]
+    : allFilters;
+
+  // Use the preferred extension (or docx) in the default filename
+  const ext = preferExt || 'docx';
+  const baseName = currentFile
+    ? path.basename(currentFile, path.extname(currentFile)) + '.' + ext
+    : 'Document.' + ext;
+  const dir = currentFile ? path.dirname(currentFile) : app.getPath('documents');
+
   const { filePath } = await dialog.showSaveDialog(mainWindow, {
     title: 'Save As',
-    defaultPath: currentFile || path.join(app.getPath('documents'), 'Document.docx'),
-    filters: [
-      { name: 'Word Document (.docx)',  extensions: ['docx'] },
-      { name: 'Word Document (.doc)',   extensions: ['doc']  },
-      { name: 'Web Page (.html)',       extensions: ['html'] },
-      { name: 'Plain Text (.txt)',      extensions: ['txt']  },
-    ],
+    defaultPath: path.join(dir, baseName),
+    filters,
   });
   return filePath || null;
 }
@@ -525,8 +541,8 @@ async function doOpen() {
   const { filePaths } = await dialog.showOpenDialog(mainWindow, {
     title: 'Open File',
     filters: [
-      { name: 'Supported Files', extensions: ['docx', 'html', 'htm', 'txt'] },
-      { name: 'Word Documents',  extensions: ['docx'] },
+      { name: 'Supported Files', extensions: ['docx', 'doc', 'html', 'htm', 'txt'] },
+      { name: 'Word Documents',  extensions: ['docx', 'doc'] },
       { name: 'Web Pages',       extensions: ['html', 'htm'] },
       { name: 'Text Files',      extensions: ['txt'] },
     ],
@@ -540,7 +556,7 @@ async function doOpen() {
 async function doOpenPath(fp) {
   const ext = fp.split('.').pop().toLowerCase();
   try {
-    if (ext === 'docx') {
+    if (ext === 'docx' || ext === 'doc') {
       const mammoth = require('mammoth');
 
       // ── Full-fidelity style map ──────────────────────────────────────────
@@ -852,11 +868,124 @@ const menuTemplate = [
   ]},
 ];
 
+// ─── Font Dialog ──────────────────────────────────────────────────────────────
+let fontDialogWin     = null;
+let textEffectsWin    = null;
+
+ipcMain.on('dialog:openFontDialog', (_e, fontState) => {
+  if (fontDialogWin && !fontDialogWin.isDestroyed()) {
+    fontDialogWin.focus();
+    return;
+  }
+  const mBounds = mainWindow.getBounds();
+  const w = Math.round(mBounds.width  * 0.5);
+  const h = Math.round(mBounds.height * 0.5);
+  const x = Math.round(mBounds.x + (mBounds.width  - w) / 2);
+  const y = Math.round(mBounds.y + (mBounds.height - h) / 2);
+
+  fontDialogWin = new BrowserWindow({
+    width: w, height: h,
+    x, y,
+    parent: mainWindow,
+    modal: false,
+    resizable: true,
+    minimizable: false,
+    maximizable: false,
+    title: 'Font',
+    icon: path.join(__dirname, 'assets', 'icon.ico'),
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+  fontDialogWin.setMenu(null);
+  fontDialogWin.loadFile(path.join(__dirname, 'src', 'font-dialog.html'));
+  fontDialogWin.webContents.on('did-finish-load', () => {
+    if (fontState) fontDialogWin.webContents.send('font-dialog:init', fontState);
+  });
+  fontDialogWin.on('closed', () => { fontDialogWin = null; });
+});
+
+ipcMain.on('dialog:openTextEffects', (_e, state) => {
+  if (textEffectsWin && !textEffectsWin.isDestroyed()) {
+    textEffectsWin.focus();
+    return;
+  }
+  const mBounds = mainWindow.getBounds();
+  const w = Math.round(mBounds.width  * 0.44);
+  const h = Math.round(mBounds.height * 0.56);
+  // Position to the right of font dialog if open
+  const x = Math.round(mBounds.x + (mBounds.width  - w) / 2) + 40;
+  const y = Math.round(mBounds.y + (mBounds.height - h) / 2) + 40;
+
+  textEffectsWin = new BrowserWindow({
+    width: w, height: h,
+    x, y,
+    parent: fontDialogWin || mainWindow,
+    modal: false,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    title: 'Format Text Effects',
+    icon: path.join(__dirname, 'assets', 'icon.ico'),
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+  textEffectsWin.setMenu(null);
+  textEffectsWin.loadFile(path.join(__dirname, 'src', 'text-effects-dialog.html'));
+  textEffectsWin.webContents.on('did-finish-load', () => {
+    if (state) textEffectsWin.webContents.send('text-effects:init', state);
+  });
+  textEffectsWin.on('closed', () => { textEffectsWin = null; });
+});
+
+// Font dialog → apply formatting back to main window
+ipcMain.on('font-dialog:apply', (_e, data) => {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('font-dialog:apply', data);
+  }
+  if (fontDialogWin && !fontDialogWin.isDestroyed()) fontDialogWin.close();
+});
+
+// Text Effects dialog → send result to font dialog (or main if font dialog is closed)
+ipcMain.on('text-effects:apply', (_e, data) => {
+  if (fontDialogWin && !fontDialogWin.isDestroyed()) {
+    fontDialogWin.webContents.send('text-effects:result', data);
+  } else if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('text-effects:result', data);
+  }
+  if (textEffectsWin && !textEffectsWin.isDestroyed()) textEffectsWin.close();
+});
+
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 app.whenReady().then(() => {
   Menu.setApplicationMenu(Menu.buildFromTemplate(menuTemplate));
   createWindow();
   initAutoUpdater();
+
+  // Open file passed via command-line argument.
+  // When launched by JainOffice launcher: electron.exe appDir filePath
+  // process.argv shape: [electron.exe, appDir, filePath]
+  // So the file is always at argv[2].
+  const argFile = (function () {
+    const candidate = process.argv[2];
+    if (!candidate) return null;
+    const ext = candidate.split('.').pop().toLowerCase();
+    if (ext === 'docx' || ext === 'doc') return candidate;
+    return null;
+  })();
+
+  if (argFile) {
+    mainWindow.webContents.once('did-finish-load', function () {
+      setTimeout(function () {
+        doOpenPath(argFile).catch(function () {});
+      }, 600);
+    });
+  }
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });

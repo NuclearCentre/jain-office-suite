@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Format Text Effects</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 12px; background: #f0f0f0; color: #1a1a1a;
+  overflow: hidden; user-select: none;
+}
+body { display: flex; flex-direction: column; height: 100vh; }
+
+/* ── Tab bar ── */
+#tab-bar { display: flex; background: #f0f0f0; border-bottom: 1px solid #ccc; flex-shrink: 0; padding: 0 6px; padding-top: 5px; }
+.tetab { padding: 5px 12px 4px; font-size: 12px; cursor: pointer; border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0; color: #444; background: transparent; margin-right: 2px; transition: all 0.1s; }
+.tetab:hover { background: #e0e8f8; }
+.tetab.active { background: #fff; border-color: #ccc; border-bottom-color: #fff; color: #1e4d8c; font-weight: 600; position: relative; top: 1px; }
+
+/* ── Panel ── */
+.tepanel { display: none; flex: 1; overflow-y: auto; padding: 10px 12px; }
+.tepanel.active { display: flex; flex-direction: column; gap: 0; }
+
+/* ── Collapsible section header ── */
+.te-section {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  padding: 6px 4px 6px; border-bottom: 1px solid #ddd; margin-bottom: 4px;
+  font-weight: 600; font-size: 12px; color: #1a1a1a; user-select: none;
+}
+.te-section-arrow { font-size: 10px; transition: transform 0.15s; flex-shrink: 0; color: #555; }
+.te-section.collapsed .te-section-arrow { transform: rotate(-90deg); }
+.te-section-swatch { width: 60px; height: 18px; border: 1px solid #aaa; border-radius: 2px; margin-left: auto; }
+.te-section-combo { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.te-section-preview { height: 18px; width: 80px; border: 1px solid #aaa; border-radius: 2px; background: #fff; display: flex; align-items: center; padding: 0 4px; }
+.te-section-line { height: 2px; flex: 1; background: #1e4d8c; border-radius: 1px; }
+
+/* ── Section body ── */
+.te-body { padding: 4px 4px 8px 12px; display: flex; flex-direction: column; gap: 6px; }
+.te-body.hidden { display: none; }
+
+/* ── Form elements ── */
+.te-row { display: flex; align-items: center; gap: 6px; }
+.te-label { font-size: 11px; color: #444; min-width: 96px; }
+.te-select { height: 22px; font-size: 11px; border: 1px solid #aaa; border-radius: 3px; padding: 0 3px; background: #fff; flex: 1; font-family: inherit; }
+.te-input { height: 22px; font-size: 11px; border: 1px solid #aaa; border-radius: 3px; padding: 0 5px; background: #fff; width: 60px; font-family: inherit; }
+.te-input:focus, .te-select:focus { outline: none; border-color: #5b9bd5; }
+.te-unit { font-size: 11px; color: #666; }
+.te-color-swatch { width: 100%; height: 20px; border: 1px solid #aaa; border-radius: 2px; cursor: pointer; }
+.te-color-wrap { flex: 1; display: flex; align-items: center; gap: 3px; }
+
+.radio-group { display: flex; flex-direction: column; gap: 4px; }
+.radio-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #222; cursor: pointer; }
+.radio-row input[type="radio"] { accent-color: #1e4d8c; width: 13px; height: 13px; cursor: pointer; }
+
+/* Gradient stops bar */
+.grad-bar { position: relative; height: 20px; border: 1px solid #aaa; border-radius: 3px; background: linear-gradient(to right, #fff, #000); margin: 4px 0; }
+.grad-stop { position: absolute; top: -2px; width: 12px; height: 24px; cursor: ew-resize; }
+.grad-stop::after { content: '▼'; font-size: 10px; position: absolute; top: 14px; left: 0; color: #555; }
+
+/* Gradient style buttons */
+.grad-style-row { display: flex; gap: 3px; }
+.grad-style-btn { width: 28px; height: 22px; border: 1px solid #aaa; border-radius: 3px; background: #f0f0f0; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
+.grad-style-btn.active { border-color: #1e4d8c; background: #dce8f8; }
+.grad-style-btn:hover { background: #e0eaff; border-color: #5b9bd5; }
+
+/* Slider */
+.te-slider { width: 100%; accent-color: #1e4d8c; }
+
+/* ── Footer ── */
+#te-footer { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 7px 12px; border-top: 1px solid #ccc; background: #f5f5f5; flex-shrink: 0; }
+.te-btn { padding: 4px 14px; font-size: 11px; border: 1px solid #aaa; border-radius: 3px; background: #f0f0f0; cursor: pointer; font-family: inherit; transition: background 0.1s; }
+.te-btn:hover { background: #e0e0e0; }
+.te-btn-primary { padding: 4px 18px; font-size: 11px; border: 1px solid #1e4d8c; border-radius: 3px; background: #1e4d8c; color: #fff; cursor: pointer; font-weight: 600; font-family: inherit; transition: background 0.1s; }
+.te-btn-primary:hover { background: #2a6ab5; }
+</style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<div id="tab-bar">
+  <button class="tetab active" data-panel="fill-outline">Text Fill &amp; Outline</button>
+  <button class="tetab" data-panel="effects">Effects</button>
+</div>
+
+<!-- ══════════════════ TEXT FILL & OUTLINE ══════════════════ -->
+<div class="tepanel active" id="panel-fill-outline">
+
+  <!-- TEXT FILL -->
+  <div class="te-section" id="sec-fill-hdr">
+    <span class="te-section-arrow">▼</span>
+    <span>Text Fill</span>
+    <div class="te-section-swatch" id="fill-swatch" style="background:#000"></div>
+    <span style="font-size:10px;margin-left:2px">▾</span>
+  </div>
+  <div class="te-body" id="sec-fill-body">
+    <div class="radio-group" id="fill-type-group">
+      <label class="radio-row"><input type="radio" name="fill-type" value="none"> No fill</label>
+      <label class="radio-row"><input type="radio" name="fill-type" value="solid" checked> Solid fill</label>
+      <label class="radio-row"><input type="radio" name="fill-type" value="gradient"> Gradient fill</label>
+    </div>
+    <!-- Solid fill controls -->
+    <div id="fill-solid-controls">
+      <div class="te-row">
+        <span class="te-label">Color</span>
+        <div class="te-color-wrap">
+          <input type="color" id="fill-color" value="#000000" style="width:100%;height:20px;border:1px solid #aaa;border-radius:2px;cursor:pointer;padding:0">
+        </div>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Transparency</span>
+        <input type="range" class="te-slider" id="fill-transparency" min="0" max="100" value="0" style="flex:1">
+        <input class="te-input" id="fill-transparency-val" value="0" style="width:38px">
+        <span class="te-unit">%</span>
+      </div>
+    </div>
+    <!-- Gradient fill controls -->
+    <div id="fill-gradient-controls" style="display:none">
+      <div class="te-row" style="margin-bottom:4px">
+        <span class="te-label">Gradient style</span>
+        <div class="grad-style-row">
+          <button class="grad-style-btn active" data-gstyle="linear" title="Linear">
+            <svg width="16" height="14"><defs><linearGradient id="g1"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#888"/></linearGradient></defs><rect width="16" height="14" fill="url(#g1)" rx="1"/></svg>
+          </button>
+          <button class="grad-style-btn" data-gstyle="radial" title="Radial">
+            <svg width="16" height="14"><defs><radialGradient id="g2"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#888"/></radialGradient></defs><rect width="16" height="14" fill="url(#g2)" rx="1"/></svg>
+          </button>
+          <button class="grad-style-btn" data-gstyle="rectangular" title="Rectangular">
+            <svg width="16" height="14"><rect x="1" y="1" width="14" height="12" fill="#ccc" rx="1"/><rect x="4" y="4" width="8" height="6" fill="#fff" rx="1"/></svg>
+          </button>
+          <button class="grad-style-btn" data-gstyle="path" title="Path">
+            <svg width="16" height="14"><ellipse cx="8" cy="7" rx="7" ry="6" fill="#ccc"/><ellipse cx="8" cy="7" rx="4" ry="3" fill="#fff"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Angle</span>
+        <input type="range" class="te-slider" id="fill-grad-angle" min="0" max="360" value="90" style="flex:1">
+        <input class="te-input" id="fill-grad-angle-val" value="90.0" style="width:48px">
+        <span class="te-unit">°</span>
+      </div>
+      <div class="grad-bar" id="fill-grad-bar"></div>
+      <div class="te-row">
+        <span class="te-label">Color</span>
+        <div class="te-color-wrap">
+          <input type="color" id="fill-grad-color" value="#1e4d8c" style="width:100%;height:20px;border:1px solid #aaa;border-radius:2px;cursor:pointer;padding:0">
+        </div>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Position</span>
+        <input type="range" class="te-slider" id="fill-grad-pos" min="0" max="100" value="0" style="flex:1">
+        <input class="te-input" id="fill-grad-pos-val" value="0" style="width:38px">
+        <span class="te-unit">%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEXT OUTLINE -->
+  <div class="te-section" id="sec-outline-hdr">
+    <span class="te-section-arrow">▼</span>
+    <span>Text Outline</span>
+    <div class="te-section-combo">
+      <div class="te-section-preview"><div class="te-section-line" id="outline-preview-line"></div></div>
+      <span style="font-size:10px">▾</span>
+    </div>
+  </div>
+  <div class="te-body" id="sec-outline-body">
+    <div class="radio-group" id="outline-type-group">
+      <label class="radio-row"><input type="radio" name="outline-type" value="none" checked> No line</label>
+      <label class="radio-row"><input type="radio" name="outline-type" value="solid"> Solid line</label>
+      <label class="radio-row"><input type="radio" name="outline-type" value="gradient"> Gradient line</label>
+    </div>
+    <div id="outline-solid-controls" style="display:none">
+      <div class="te-row">
+        <span class="te-label">Color</span>
+        <div class="te-color-wrap">
+          <input type="color" id="outline-color" value="#1e4d8c" style="width:100%;height:20px;border:1px solid #aaa;border-radius:2px;cursor:pointer;padding:0">
+        </div>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Transparency</span>
+        <input type="range" class="te-slider" id="outline-transparency" min="0" max="100" value="0" style="flex:1">
+        <input class="te-input" id="outline-transparency-val" value="0" style="width:38px">
+        <span class="te-unit">%</span>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Width</span>
+        <input class="te-input" id="outline-width" value="0.75">
+        <span class="te-unit">pt</span>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Compound type</span>
+        <select class="te-select" id="outline-compound">
+          <option>Simple</option><option>Double</option>
+          <option>Thick Thin</option><option>Thin Thick</option>
+        </select>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Dash type</span>
+        <select class="te-select" id="outline-dash">
+          <option value="solid">————————</option>
+          <option value="dot">·········</option>
+          <option value="dash">– – – –</option>
+          <option value="dashdot">– · – ·</option>
+          <option value="longdash">—— ——</option>
+        </select>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Cap type</span>
+        <select class="te-select" id="outline-cap">
+          <option>Flat</option><option>Round</option><option>Square</option>
+        </select>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Join type</span>
+        <select class="te-select" id="outline-join">
+          <option>Round</option><option>Bevel</option><option>Miter</option>
+        </select>
+      </div>
+    </div>
+    <div id="outline-gradient-controls" style="display:none">
+      <div class="te-row">
+        <span class="te-label">Gradient style</span>
+        <div class="grad-style-row">
+          <button class="grad-style-btn active" data-ogstyle="linear">
+            <svg width="16" height="14"><defs><linearGradient id="og1"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#888"/></linearGradient></defs><rect width="16" height="14" fill="url(#og1)" rx="1"/></svg>
+          </button>
+          <button class="grad-style-btn" data-ogstyle="radial">
+            <svg width="16" height="14"><defs><radialGradient id="og2"><stop offset="0%" stop-color="#fff"/><stop offset="100%" stop-color="#888"/></radialGradient></defs><rect width="16" height="14" fill="url(#og2)" rx="1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Angle</span>
+        <input type="range" class="te-slider" id="outline-grad-angle" min="0" max="360" value="90" style="flex:1">
+        <input class="te-input" id="outline-grad-angle-val" value="90.0" style="width:48px">
+        <span class="te-unit">°</span>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Color</span>
+        <div class="te-color-wrap">
+          <input type="color" id="outline-grad-color" value="#1e4d8c" style="width:100%;height:20px;border:1px solid #aaa;border-radius:2px;cursor:pointer;padding:0">
+        </div>
+      </div>
+      <div class="te-row">
+        <span class="te-label">Position</span>
+        <input type="range" class="te-slider" id="outline-grad-pos" min="0" max="100" value="0" style="flex:1">
+        <input class="te-input" id="outline-grad-pos-val" value="0" style="width:38px">
+        <span class="te-unit">%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ EFFECTS TAB ══════════════════ -->
+<div class="tepanel" id="panel-effects">
+
+  <!-- SHADOW -->
+  <div class="te-section" id="sec-shadow-hdr">
+    <span class="te-section-arrow">▼</span>
+    <span>Shadow</span>
+  </div>
+  <div class="te-body" id="sec-shadow-body">
+    <div class="te-row">
+      <span class="te-label">Presets</span>
+      <select class="te-select" id="eff-shadow-preset">
+        <option value="none">No Shadow</option>
+        <option value="outer-bottom-right">Outer — Bottom Right</option>
+        <option value="outer-bottom">Outer — Bottom</option>
+        <option value="outer-bottom-left">Outer — Bottom Left</option>
+        <option value="inner-top-left">Inner — Top Left</option>
+        <option value="inner-center">Inner — Center</option>
+        <option value="perspective">Perspective</option>
+      </select>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Color</span>
+      <div class="te-color-wrap">
+        <input type="color" id="eff-shadow-color" value="#808080" style="width:100%;height:20px;border:1px solid #aaa;border-radius:2px;cursor:pointer;padding:0">
+      </div>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Transparency</span>
+      <input type="range" class="te-slider" id="eff-shadow-trans" min="0" max="100" value="40" style="flex:1">
+      <input class="te-input" id="eff-shadow-trans-val" value="40" style="width:38px">
+      <span class="te-unit">%</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Size</span>
+      <input type="range" class="te-slider" id="eff-shadow-size" min="0" max="200" value="100" style="flex:1">
+      <input class="te-input" id="eff-shadow-size-val" value="100" style="width:38px">
+      <span class="te-unit">%</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Blur</span>
+      <input type="range" class="te-slider" id="eff-shadow-blur" min="0" max="40" value="4" style="flex:1">
+      <input class="te-input" id="eff-shadow-blur-val" value="4" style="width:38px">
+      <span class="te-unit">pt</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Angle</span>
+      <input type="range" class="te-slider" id="eff-shadow-angle" min="0" max="360" value="315" style="flex:1">
+      <input class="te-input" id="eff-shadow-angle-val" value="315" style="width:38px">
+      <span class="te-unit">°</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Distance</span>
+      <input type="range" class="te-slider" id="eff-shadow-dist" min="0" max="40" value="3" style="flex:1">
+      <input class="te-input" id="eff-shadow-dist-val" value="3" style="width:38px">
+      <span class="te-unit">pt</span>
+    </div>
+  </div>
+
+  <!-- REFLECTION -->
+  <div class="te-section collapsed" id="sec-reflect-hdr">
+    <span class="te-section-arrow">▼</span>
+    <span>Reflection</span>
+  </div>
+  <div class="te-body hidden" id="sec-reflect-body">
+    <div class="te-row">
+      <span class="te-label">Presets</span>
+      <select class="te-select" id="eff-reflect-preset">
+        <option value="none">No Reflection</option>
+        <option value="tight-touching">Tight Reflection, touching</option>
+        <option value="tight-4pt">Tight Reflection, 4 pt offset</option>
+        <option value="tight-8pt">Tight Reflection, 8 pt offset</option>
+        <option value="half-touching">Half Reflection, touching</option>
+        <option value="full-touching">Full Reflection, touching</option>
+      </select>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Transparency</span>
+      <input type="range" class="te-slider" id="eff-reflect-trans" min="0" max="100" value="0" style="flex:1">
+      <input class="te-input" id="eff-reflect-trans-val" value="0" style="width:38px">
+      <span class="te-unit">%</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Size</span>
+      <input type="range" class="te-slider" id="eff-reflect-size" min="0" max="100" value="100" style="flex:1">
+      <input class="te-input" id="eff-reflect-size-val" value="100" style="width:38px">
+      <span class="te-unit">%</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Blur</span>
+      <input type="range" class="te-slider" id="eff-reflect-blur" min="0" max="20" value="0" style="flex:1">
+      <input class="te-input" id="eff-reflect-blur-val" value="0" style="width:38px">
+      <span class="te-unit">pt</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Distance</span>
+      <input type="range" class="te-slider" id="eff-reflect-dist" min="0" max="40" value="0" style="flex:1">
+      <input class="te-input" id="eff-reflect-dist-val" value="0" style="width:38px">
+      <span class="te-unit">pt</span>
+    </div>
+  </div>
+
+  <!-- GLOW -->
+  <div class="te-section collapsed" id="sec-glow-hdr">
+    <span class="te-section-arrow">▼</span>
+    <span>Glow</span>
+  </div>
+  <div class="te-body hidden" id="sec-glow-body">
+    <div class="te-row">
+      <span class="te-label">Presets</span>
+      <select class="te-select" id="eff-glow-preset">
+        <option value="none">No Glow</option>
+        <option value="5pt-blue">5 pt — Blue</option>
+        <option value="8pt-blue">8 pt — Blue</option>
+        <option value="5pt-red">5 pt — Red</option>
+        <option value="8pt-red">8 pt — Red</option>
+        <option value="5pt-gold">5 pt — Gold</option>
+      </select>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Color</span>
+      <div class="te-color-wrap">
+        <input type="color" id="eff-glow-color" value="#0078d4" style="width:100%;height:20px;border:1px solid #aaa;border-radius:2px;cursor:pointer;padding:0">
+      </div>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Size</span>
+      <input type="range" class="te-slider" id="eff-glow-size" min="1" max="40" value="5" style="flex:1">
+      <input class="te-input" id="eff-glow-size-val" value="5" style="width:38px">
+      <span class="te-unit">pt</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Transparency</span>
+      <input type="range" class="te-slider" id="eff-glow-trans" min="0" max="100" value="0" style="flex:1">
+      <input class="te-input" id="eff-glow-trans-val" value="0" style="width:38px">
+      <span class="te-unit">%</span>
+    </div>
+  </div>
+
+  <!-- SOFT EDGES -->
+  <div class="te-section collapsed" id="sec-soft-hdr">
+    <span class="te-section-arrow">▼</span>
+    <span>Soft Edges</span>
+  </div>
+  <div class="te-body hidden" id="sec-soft-body">
+    <div class="te-row">
+      <span class="te-label">Size</span>
+      <input type="range" class="te-slider" id="eff-soft-size" min="0" max="40" value="0" style="flex:1">
+      <input class="te-input" id="eff-soft-size-val" value="0" style="width:38px">
+      <span class="te-unit">pt</span>
+    </div>
+  </div>
+
+  <!-- 3D FORMAT -->
+  <div class="te-section collapsed" id="sec-3d-hdr">
+    <span class="te-section-arrow">▼</span>
+    <span>3D Format</span>
+  </div>
+  <div class="te-body hidden" id="sec-3d-body">
+    <div class="te-row">
+      <span class="te-label">Bevel type (top)</span>
+      <select class="te-select" id="eff-3d-bevel-top">
+        <option value="none">None</option>
+        <option value="circle">Circle</option>
+        <option value="relaxed-inset">Relaxed Inset</option>
+        <option value="cross">Cross</option>
+        <option value="cool-slant">Cool Slant</option>
+        <option value="angle">Angle</option>
+        <option value="soft-round">Soft Round</option>
+        <option value="convex">Convex</option>
+        <option value="slope">Slope</option>
+        <option value="divot">Divot</option>
+      </select>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Width</span>
+      <input class="te-input" id="eff-3d-bevel-w" value="6">
+      <span class="te-unit">pt</span>
+      <span class="te-label" style="margin-left:8px">Height</span>
+      <input class="te-input" id="eff-3d-bevel-h" value="6">
+      <span class="te-unit">pt</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Depth color</span>
+      <div class="te-color-wrap">
+        <input type="color" id="eff-3d-depth-color" value="#808080" style="width:100%;height:20px;border:1px solid #aaa;border-radius:2px;cursor:pointer;padding:0">
+      </div>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Depth size</span>
+      <input class="te-input" id="eff-3d-depth-size" value="0">
+      <span class="te-unit">pt</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Surface material</span>
+      <select class="te-select" id="eff-3d-material">
+        <option>Matte</option><option>Warm Matte</option><option>Plastic</option>
+        <option>Metal</option><option>Dark Edge</option><option>Soft Edge</option>
+        <option>Flat</option><option>Wire Frame</option>
+      </select>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Lighting</span>
+      <select class="te-select" id="eff-3d-lighting">
+        <option>Three Point</option><option>Balance</option><option>Soft</option>
+        <option>Harsh</option><option>Flood</option><option>Contrasting</option>
+        <option>Morning</option><option>Sunrise</option><option>Sunset</option>
+        <option>Chilly</option><option>Freezing</option><option>Flat</option>
+      </select>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Lighting angle</span>
+      <input type="range" class="te-slider" id="eff-3d-light-angle" min="0" max="359" value="0" style="flex:1">
+      <input class="te-input" id="eff-3d-light-angle-val" value="0" style="width:38px">
+      <span class="te-unit">°</span>
+    </div>
+  </div>
+
+  <!-- 3D ROTATION -->
+  <div class="te-section collapsed" id="sec-3drot-hdr">
+    <span class="te-section-arrow">▼</span>
+    <span>3D Rotation</span>
+  </div>
+  <div class="te-body hidden" id="sec-3drot-body">
+    <div class="te-row">
+      <span class="te-label">Presets</span>
+      <select class="te-select" id="eff-3drot-preset">
+        <option value="none">No Rotation</option>
+        <option value="isometric-left">Isometric Left Down</option>
+        <option value="isometric-right">Isometric Right Up</option>
+        <option value="off-axis-1-left">Off Axis 1 Left</option>
+        <option value="off-axis-1-right">Off Axis 1 Right</option>
+        <option value="perspective-front">Perspective Front</option>
+        <option value="perspective-heroic">Perspective Heroic</option>
+        <option value="oblique-top-left">Oblique Top Left</option>
+      </select>
+    </div>
+    <div class="te-row">
+      <span class="te-label">X rotation</span>
+      <input type="range" class="te-slider" id="eff-3drot-x" min="0" max="359" value="0" style="flex:1">
+      <input class="te-input" id="eff-3drot-x-val" value="0" style="width:38px">
+      <span class="te-unit">°</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Y rotation</span>
+      <input type="range" class="te-slider" id="eff-3drot-y" min="0" max="359" value="0" style="flex:1">
+      <input class="te-input" id="eff-3drot-y-val" value="0" style="width:38px">
+      <span class="te-unit">°</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Z rotation</span>
+      <input type="range" class="te-slider" id="eff-3drot-z" min="0" max="359" value="0" style="flex:1">
+      <input class="te-input" id="eff-3drot-z-val" value="0" style="width:38px">
+      <span class="te-unit">°</span>
+    </div>
+    <div class="te-row">
+      <span class="te-label">Perspective</span>
+      <input type="range" class="te-slider" id="eff-3drot-persp" min="0" max="120" value="0" style="flex:1">
+      <input class="te-input" id="eff-3drot-persp-val" value="0" style="width:38px">
+      <span class="te-unit">°</span>
+    </div>
+  </div>
+
+</div><!-- /panel-effects -->
+
+<!-- FOOTER -->
+<div id="te-footer">
+  <button class="te-btn" id="te-cancel">Cancel</button>
+  <button class="te-btn-primary" id="te-ok">OK</button>
+</div>
+
+<script>
+'use strict';
+const api = window.electronAPI;
+
+// ── Tab switching ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.tetab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tetab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tepanel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+  });
+});
+
+// ── Collapsible sections ────────────────────────────────────────────────────────
+document.querySelectorAll('.te-section').forEach(hdr => {
+  hdr.addEventListener('click', () => {
+    const bodyId = hdr.id.replace('-hdr', '-body');
+    const body   = document.getElementById(bodyId);
+    if (!body) return;
+    const collapsed = hdr.classList.toggle('collapsed');
+    body.classList.toggle('hidden', collapsed);
+  });
+});
+
+// ── Slider ↔ input sync ───────────────────────────────────────────────────────
+function syncSlider(sliderId, valId, decimals) {
+  const slider = document.getElementById(sliderId);
+  const input  = document.getElementById(valId);
+  if (!slider || !input) return;
+  slider.addEventListener('input', () => {
+    input.value = decimals ? parseFloat(slider.value).toFixed(decimals) : slider.value;
+  });
+  input.addEventListener('input', () => {
+    const v = parseFloat(input.value);
+    if (!isNaN(v)) slider.value = v;
+  });
+}
+[
+  ['fill-transparency','fill-transparency-val',0],
+  ['fill-grad-angle','fill-grad-angle-val',1],
+  ['fill-grad-pos','fill-grad-pos-val',0],
+  ['outline-transparency','outline-transparency-val',0],
+  ['outline-grad-angle','outline-grad-angle-val',1],
+  ['outline-grad-pos','outline-grad-pos-val',0],
+  ['eff-shadow-trans','eff-shadow-trans-val',0],
+  ['eff-shadow-size','eff-shadow-size-val',0],
+  ['eff-shadow-blur','eff-shadow-blur-val',0],
+  ['eff-shadow-angle','eff-shadow-angle-val',0],
+  ['eff-shadow-dist','eff-shadow-dist-val',0],
+  ['eff-reflect-trans','eff-reflect-trans-val',0],
+  ['eff-reflect-size','eff-reflect-size-val',0],
+  ['eff-reflect-blur','eff-reflect-blur-val',0],
+  ['eff-reflect-dist','eff-reflect-dist-val',0],
+  ['eff-glow-size','eff-glow-size-val',0],
+  ['eff-glow-trans','eff-glow-trans-val',0],
+  ['eff-soft-size','eff-soft-size-val',0],
+  ['eff-3d-light-angle','eff-3d-light-angle-val',0],
+  ['eff-3drot-x','eff-3drot-x-val',0],
+  ['eff-3drot-y','eff-3drot-y-val',0],
+  ['eff-3drot-z','eff-3drot-z-val',0],
+  ['eff-3drot-persp','eff-3drot-persp-val',0],
+].forEach(([s, v, d]) => syncSlider(s, v, d));
+
+// ── Fill type toggle ───────────────────────────────────────────────────────────
+document.querySelectorAll('input[name="fill-type"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const val = r.value;
+    document.getElementById('fill-solid-controls').style.display    = val === 'solid'    ? '' : 'none';
+    document.getElementById('fill-gradient-controls').style.display  = val === 'gradient' ? '' : 'none';
+    const swatch = document.getElementById('fill-swatch');
+    if (val === 'none') swatch.style.background = 'transparent';
+    else if (val === 'solid') swatch.style.background = document.getElementById('fill-color').value;
+    else swatch.style.background = 'linear-gradient(to right, #fff, #1e4d8c)';
+  });
+});
+document.getElementById('fill-color').addEventListener('input', function() {
+  document.getElementById('fill-swatch').style.background = this.value;
+});
+
+// ── Outline type toggle ───────────────────────────────────────────────────────
+document.querySelectorAll('input[name="outline-type"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const val = r.value;
+    document.getElementById('outline-solid-controls').style.display    = val === 'solid'    ? '' : 'none';
+    document.getElementById('outline-gradient-controls').style.display  = val === 'gradient' ? '' : 'none';
+    const line = document.getElementById('outline-preview-line');
+    line.style.background = val === 'none' ? 'transparent'
+                          : val === 'solid' ? document.getElementById('outline-color').value
+                          : 'linear-gradient(to right, #fff, #1e4d8c)';
+  });
+});
+document.getElementById('outline-color').addEventListener('input', function() {
+  document.getElementById('outline-preview-line').style.background = this.value;
+});
+
+// ── Gradient style buttons ────────────────────────────────────────────────────
+document.querySelectorAll('.grad-style-btn[data-gstyle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.grad-style-btn[data-gstyle]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+document.querySelectorAll('.grad-style-btn[data-ogstyle]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.grad-style-btn[data-ogstyle]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ── Receive initial state ──────────────────────────────────────────────────────
+api.onTextEffectsInit(state => {
+  if (!state) return;
+  // Restore outline type
+  if (state.outlineType) {
+    const r = document.querySelector(`input[name="outline-type"][value="${state.outlineType}"]`);
+    if (r) { r.checked = true; r.dispatchEvent(new Event('change')); }
+  }
+  if (state.outlineColor) document.getElementById('outline-color').value = state.outlineColor;
+  if (state.outlineWidth) document.getElementById('outline-width').value = state.outlineWidth;
+  if (state.shadow) {
+    document.getElementById('eff-shadow-color').value = state.shadowColor || '#808080';
+    document.getElementById('eff-shadow-blur').value  = state.shadowBlur  || 4;
+    document.getElementById('eff-shadow-dist').value  = state.shadowDist  || 3;
+  }
+});
+
+// ── Build result ──────────────────────────────────────────────────────────────
+function buildResult() {
+  const fillType    = document.querySelector('input[name="fill-type"]:checked')?.value || 'solid';
+  const outlineType = document.querySelector('input[name="outline-type"]:checked')?.value || 'none';
+  return {
+    // Fill
+    fillType,
+    fillColor:         document.getElementById('fill-color').value,
+    fillTransparency:  parseInt(document.getElementById('fill-transparency').value),
+    fillGradStyle:     document.querySelector('.grad-style-btn[data-gstyle].active')?.dataset.gstyle || 'linear',
+    fillGradAngle:     parseFloat(document.getElementById('fill-grad-angle').value),
+    fillGradColor:     document.getElementById('fill-grad-color').value,
+    fillGradPos:       parseInt(document.getElementById('fill-grad-pos').value),
+    // Outline
+    outlineType,
+    outlineColor:      document.getElementById('outline-color').value,
+    outlineTransparency: parseInt(document.getElementById('outline-transparency').value),
+    outlineWidth:      parseFloat(document.getElementById('outline-width').value),
+    outlineDash:       document.getElementById('outline-dash').value,
+    outlineCap:        document.getElementById('outline-cap').value,
+    // Shadow
+    shadow:            document.getElementById('eff-shadow-preset').value !== 'none',
+    shadowPreset:      document.getElementById('eff-shadow-preset').value,
+    shadowColor:       document.getElementById('eff-shadow-color').value,
+    shadowTransparency:parseInt(document.getElementById('eff-shadow-trans').value),
+    shadowBlur:        parseFloat(document.getElementById('eff-shadow-blur').value),
+    shadowAngle:       parseFloat(document.getElementById('eff-shadow-angle').value),
+    shadowDist:        parseFloat(document.getElementById('eff-shadow-dist').value),
+    // Reflection
+    reflection:        document.getElementById('eff-reflect-preset').value !== 'none',
+    reflectionPreset:  document.getElementById('eff-reflect-preset').value,
+    reflectionTrans:   parseInt(document.getElementById('eff-reflect-trans').value),
+    reflectionSize:    parseInt(document.getElementById('eff-reflect-size').value),
+    reflectionBlur:    parseFloat(document.getElementById('eff-reflect-blur').value),
+    reflectionDist:    parseFloat(document.getElementById('eff-reflect-dist').value),
+    // Glow
+    glow:              document.getElementById('eff-glow-preset').value !== 'none',
+    glowPreset:        document.getElementById('eff-glow-preset').value,
+    glowColor:         document.getElementById('eff-glow-color').value,
+    glowSize:          parseFloat(document.getElementById('eff-glow-size').value),
+    glowTrans:         parseInt(document.getElementById('eff-glow-trans').value),
+    // Soft edges
+    softEdges:         parseFloat(document.getElementById('eff-soft-size').value) > 0,
+    softEdgeSize:      parseFloat(document.getElementById('eff-soft-size').value),
+    // 3D
+    bevelTop:          document.getElementById('eff-3d-bevel-top').value,
+    bevelWidth:        parseFloat(document.getElementById('eff-3d-bevel-w').value),
+    bevelHeight:       parseFloat(document.getElementById('eff-3d-bevel-h').value),
+    depthColor:        document.getElementById('eff-3d-depth-color').value,
+    depthSize:         parseFloat(document.getElementById('eff-3d-depth-size').value),
+    material:          document.getElementById('eff-3d-material').value,
+    lighting:          document.getElementById('eff-3d-lighting').value,
+    lightingAngle:     parseFloat(document.getElementById('eff-3d-light-angle').value),
+    // 3D Rotation
+    rotPreset:         document.getElementById('eff-3drot-preset').value,
+    rotX:              parseFloat(document.getElementById('eff-3drot-x').value),
+    rotY:              parseFloat(document.getElementById('eff-3drot-y').value),
+    rotZ:              parseFloat(document.getElementById('eff-3drot-z').value),
+    rotPerspective:    parseFloat(document.getElementById('eff-3drot-persp').value),
+  };
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+document.getElementById('te-ok').addEventListener('click', () => {
+  api.textEffectsApply(buildResult());
+});
+document.getElementById('te-cancel').addEventListener('click', () => {
+  window.close();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') window.close();
+});
+</script>
+</body>
+</html>

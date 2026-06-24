@@ -17,25 +17,51 @@ body{font-family:Arial,sans-serif;font-size:12px;background:#f0f0f0;overflow:hid
 
 /* Ribbon */
 #ribbon{background:#f3f3f3;border-bottom:1px solid #c0c0c0}
-.tab-bar{display:flex;padding:0 4px;border-bottom:1px solid #c0c0c0;background:#e8e8e8}
-.tab{padding:5px 12px;font-size:11px;cursor:pointer;border:none;background:none;color:#333;border-bottom:2px solid transparent;white-space:nowrap}
-.tab.active{color:#1e6e3a;border-bottom:2px solid #1e6e3a;font-weight:bold;background:#f3f3f3}
-.tab:hover:not(.active){background:#ddd}
-.tab-content{display:none;padding:0 4px;gap:0;align-items:stretch;height:82px}
-.tab-content.active{display:flex}
+.tab-bar{display:flex;padding:0 8px 0 0;border-bottom:none;background:transparent;gap:2px;align-items:flex-end;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;flex-shrink:0}
+
+/* Tab pill — ALL tabs get a visible capsule shape */
+/* NO transition on the tab itself — prevents sibling vibration when active class switches */
+.tab{padding:9px 18px;font-size:12px;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,0.85);border-radius:6px 6px 0 0;white-space:nowrap;font-weight:500;border-bottom:2px solid transparent;outline:none}
+.tab.active{background:#f0f0f0;color:#1e6e3a;font-weight:700;border-bottom:2px solid #1e6e3a}
+.tab:hover:not(.active){background:rgba(255,255,255,0.15);color:#fff}
+
+.tab-content{display:none;padding:0 4px;gap:0;align-items:stretch;height:98px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.tab-content.active{display:flex;flex-wrap:nowrap}
+
 /* Group container */
 .rg{display:flex;flex-direction:column;align-items:stretch;padding:3px 4px 0 4px;border-right:1px solid #d0d0d0;min-width:fit-content}
-.rg:last-child{border-right:none}
-.rg-label{font-size:9px;color:#888;text-align:center;padding:1px 2px 2px 2px;border-top:1px solid #e0e0e0;margin-top:auto;white-space:nowrap;flex-shrink:0;line-height:11px;height:14px}
+
+/* Card group label — darker band to visually separate from button area */
+.rg-label{
+  font-size:9px;
+  color:#2a2a2a;
+  font-weight:700;
+  text-align:center;
+  padding:1px 4px 2px 4px;
+  margin-top:auto;
+  white-space:nowrap;
+  flex-shrink:0;
+  line-height:12px;
+  height:15px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  background:#d8d8d8;
+  border-top:1px solid #bfbfbf;
+}
 /* Two-row button area */
-.rg-body{display:flex;flex-direction:column;gap:1px;flex:1;justify-content:center;padding:2px 0}
-.rg-r1,.rg-r2{display:flex;align-items:center;gap:2px;height:28px}
-/* Ribbon button — icon on top, label below */
-.rb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:1px 4px;border-radius:3px;cursor:pointer;border:none;background:none;font-size:9px;font-weight:600;color:#333;min-width:32px;height:26px;max-height:26px;white-space:nowrap;line-height:1;overflow:hidden}
-.rb:hover{background:#ddd}
-.rb.active{background:#c8e6c9;color:#1e6e3a}
-.rb svg{width:15px;height:15px;stroke:#444;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-bottom:1px}
-.rb:hover svg,.rb.active svg{stroke:#1e6e3a}
+.rg-body{display:flex;flex-direction:column;gap:5px;flex:1;justify-content:center;padding:2px 0}
+.rg-r1{display:flex;align-items:center;gap:5px;height:28px}
+.rg-r2{display:flex;align-items:flex-start;gap:5px;height:28px;padding-top:0}
+/* Ribbon button — now just an alias to rib-icon for legacy compatibility */
+.rb{display:inline-flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;width:28px;height:28px;border:none;border-radius:5px;cursor:pointer;flex-shrink:0;padding:0;font-size:8px;font-weight:600;color:#3c4043;background:#e8f0fe;box-shadow:0 0 0 1px #bdc1c6;white-space:nowrap;overflow:visible;line-height:1}
+.rb:hover{background:#d2e3fc;box-shadow:0 0 0 1px #9aa0a6}
+.rb.active{background:#c5d8fb;box-shadow:0 0 0 1px #4285f4}
+.rb svg{width:14px;height:14px;stroke:#3c4043;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:block;overflow:visible}
+/* Long-label button — same height as square but auto-width to fit label */
+.rb-lbl{display:inline-flex;align-items:center;justify-content:center;flex-direction:column;gap:1px;height:28px;min-width:28px;padding:0 6px;border:none;border-radius:5px;cursor:pointer;flex-shrink:0;font-size:8px;font-weight:600;color:#3c4043;background:#e8f0fe;box-shadow:0 0 0 1px #bdc1c6;white-space:nowrap;line-height:1}
+.rb-lbl:hover{background:#d2e3fc;box-shadow:0 0 0 1px #9aa0a6}
+.rb-lbl.active{background:#c5d8fb;box-shadow:0 0 0 1px #4285f4}
+.rb-lbl svg{width:14px;height:14px;stroke:#3c4043;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;display:block;overflow:visible}
 /* Compact button — icon only, no label, square */
 .rb-icon{display:flex;align-items:center;justify-content:center;padding:3px;border-radius:3px;cursor:pointer;border:none;background:none;width:26px;height:26px}
 .rb-icon:hover{background:#ddd}
@@ -123,16 +149,21 @@ canvas#chart-canvas{width:100%;height:100%}
 body.dark{background:#1e1e1e;color:#ddd}
 body.dark #app{background:#252526}
 body.dark #title-bar{background:#0d3a1f}
-body.dark #ribbon,body.dark .tab-bar{background:#2d2d2d;border-color:#444}
-body.dark .tab{color:#ccc}
-body.dark .tab.active{color:#4caf50;border-color:#4caf50;background:#333}
-body.dark .tab:hover:not(.active){background:#3a3a3a}
+body.dark #ribbon-tabs-row{background:#0d3a1f}
+body.dark #ribbon{background:#2d2d2d;border-color:#444}
+body.dark .tab{color:rgba(200,255,200,0.7)}
+body.dark .tab.active{background:#1a1a1a;color:#5fb87a}
+body.dark .tab.active{background:#1a6e3a;color:#fff;border-color:#1a6e3a}
+body.dark .tab:hover:not(.active){background:#4a4a4a;color:#e0e0e0}
 body.dark .tab-content{background:#2d2d2d}
 body.dark .rg{border-color:#444}
-body.dark .rb{color:#ccc}
-body.dark .rb:hover{background:#3a3a3a}
-body.dark .rb svg{stroke:#aaa}
-body.dark .rb:hover svg,.dark .rb.active svg{stroke:#4caf50}
+body.dark .rg-label{color:#c0c8d0;background:#232323;border-top-color:#3a3a3a}
+body.dark .rb,.dark .rb-lbl{background:#2a3a5c;color:#c8d6f0;box-shadow:0 0 0 1px #555}
+body.dark .rb:hover,body.dark .rb-lbl:hover{background:#223060;box-shadow:0 0 0 1px #7a8ab0}
+body.dark .rb svg,body.dark .rb-lbl svg{stroke:#c8d6f0}
+body.dark .rib-icon{background:#2a3a5c;color:#c8d6f0;box-shadow:0 0 0 1px #555}
+body.dark .rib-icon:hover{background:#223060;box-shadow:0 0 0 1px #7a8ab0}
+body.dark .rib-icon svg{stroke:#c8d6f0}
 body.dark select.rs,body.dark input.ri{background:#333;color:#ccc;border-color:#555}
 body.dark #formula-bar{background:#252526;border-color:#444}
 body.dark #cell-addr{background:#333;color:#ccc;border-color:#555}
@@ -169,10 +200,103 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
 /* Comment tooltip */
 .cell-comment{position:absolute;top:-2px;right:-2px;width:0;height:0;border-style:solid;border-width:0 6px 6px 0;border-color:transparent #e53935 transparent transparent;z-index:1;pointer-events:none}
 .comment-tip{position:fixed;background:#ffffcc;border:1px solid #ccc;padding:5px 8px;font-size:11px;border-radius:3px;z-index:9998;pointer-events:none;max-width:200px;box-shadow:2px 2px 6px rgba(0,0,0,0.15);display:none}
+/* Formula category dropdowns — split box: icon+label | arrow */
+.fng{position:relative;display:inline-flex;flex-shrink:0}
+.fng-main{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 7px 0 6px;border:none;border-radius:5px 0 0 5px;cursor:pointer;font-size:10px;font-weight:600;color:#3c4043;white-space:nowrap;background:#e8f0fe;box-shadow:none;width:82px;justify-content:flex-start}
+.fng-main:hover{background:#d2e3fc}
+.fng-main svg{stroke:#3c4043;flex-shrink:0}
+.fng-arr-btn{display:inline-flex;align-items:center;justify-content:center;width:13px;height:28px;border:none;border-radius:0 5px 5px 0;cursor:pointer;font-size:9px;background:#d2e3fc;color:#3c4043;border-left:1px solid #bdc1c6;padding:0}
+.fng-arr-btn:hover{background:#c5d8fb}
+.fng-box{display:inline-flex;align-items:stretch;box-shadow:0 0 0 1px #bdc1c6;border-radius:5px;flex-shrink:0}
+.fng-drop{position:fixed;background:#fff;border:1px solid #ccc;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,0.18);z-index:99999;width:160px;max-height:260px;overflow-y:auto;display:none;padding:3px 0}
+.fng-drop.open{display:block}
+.fnd-sec{padding:3px 10px 1px;font-size:9px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-top:1px solid #f0f0f0;margin-top:2px}
+.fnd-sec:first-child{border-top:none;margin-top:0}
+.fnd-item{padding:4px 12px;font-size:10px;cursor:pointer;color:#1a1a1a;font-family:Consolas,monospace;font-weight:600}
+.fnd-item:hover{background:#e8f5ed;color:#1e6e3a}
+body.dark .fng-box{box-shadow:0 0 0 1px #555}
+body.dark .fng-main{background:#2a3a5c;color:#c8d6f0}
+body.dark .fng-main:hover{background:#223060}
+body.dark .fng-arr-btn{background:#223060;color:#c8d6f0;border-left-color:#555}
+body.dark .fng-drop{background:#2d2d2d;border-color:#555}
+body.dark .fnd-item{color:#ccc}
+body.dark .fnd-item:hover{background:#1a3a25;color:#4caf50}
+body.dark .fnd-sec{color:#666;border-top-color:#3a3a3a}
+/* Colour split buttons — font color & fill color */
+.color-split-btn{display:inline-flex;flex-direction:column;align-items:flex-start;gap:3px;flex-shrink:0;background:none;border:none;padding:0;cursor:default}
+.csb-main{display:inline-flex;flex-direction:row;align-items:center;box-shadow:0 0 0 1px #bdc1c6;border-radius:5px;overflow:visible;height:28px;box-sizing:content-box;background:#e8f0fe}
+.csb-icon{display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;width:28px;height:28px;flex-shrink:0;padding:0;overflow:visible}
+.csb-icon:hover{background:#d2e3fc;border-radius:4px 0 0 4px}
+.csb-icon svg{display:block;flex-shrink:0;overflow:visible}
+.csb-arrow{display:flex;align-items:center;justify-content:center;padding:0 3px;background:#d2e3fc;border:none;box-shadow:-1px 0 0 0 #bdc1c6;cursor:pointer;width:13px;height:28px;flex-shrink:0;border-radius:0 5px 5px 0;color:#3c4043}
+.csb-arrow:hover{background:#c5d8fb;border-radius:0 4px 4px 0}
+.csb-bar{height:6px;width:28px;border-radius:2px;background:#000000;flex-shrink:0;display:block}
+body.dark .csb-main{box-shadow:0 0 0 1px #555;background:#2a3a5c}
+body.dark .csb-arrow{box-shadow:-1px 0 0 0 #555;background:#223060;color:#aaa}
+body.dark .csb-icon:hover,body.dark .csb-arrow:hover{background:#1a2a50}
+/* ── Quick Access Bar ── */
+#ribbon-tabs-row{display:flex;flex-direction:row;align-items:flex-end;background:#1e6e3a;flex-shrink:0;padding:0}
+#quick-access-bar{display:flex;align-items:center;gap:4px;padding:3px 4px 3px 10px;background:transparent;-webkit-app-region:drag;flex-shrink:0}
+#quick-access-bar button{-webkit-app-region:no-drag}
+.qab-btn{display:flex;align-items:center;justify-content:center;height:28px;min-width:28px;border:none;background:#e8f0fe;box-shadow:0 0 0 1px #bdc1c6;border-radius:4px;cursor:pointer;flex-shrink:0;transition:background 0.1s;padding:0 6px}
+.qab-btn:hover{background:#d2e3fc}
+.qab-btn:active{background:#c0d8fb}
+.qab-btn svg{width:15px;height:15px;stroke:#3c4043;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;overflow:visible}
+#qab-file{background:#008080;color:#fff;box-shadow:none;font-size:12px;font-weight:600;padding:0 14px;gap:4px}
+#qab-file:hover{background:#006666}
+.qab-sep{width:1px;height:16px;background:rgba(255,255,255,0.3);margin:0 2px;flex-shrink:0}
+/* ── Universal coloured square icon button ── */
+.rib-icon{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:5px;cursor:pointer;flex-shrink:0;padding:0;font-weight:900;font-family:Georgia,serif;background:#e8f0fe;box-shadow:0 0 0 1px #bdc1c6}
+.rib-icon:hover{background:#d2e3fc;box-shadow:0 0 0 1px #9aa0a6}
+.rib-icon svg{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block;overflow:visible;stroke:#3c4043}
+/* uniform size — 28×28 for all regular icons */
+.ri-26{width:28px;height:28px} .ri-26 svg{width:15px;height:15px}
+.ri-30{width:28px;height:28px} .ri-30 svg{width:15px;height:15px}
+.ri-38{width:38px;height:38px} .ri-38 svg{width:22px;height:22px}
+/* remove all colour themes — all use base .rib-icon style */
+.ri-blu{} .ri-grn{} .ri-red{} .ri-org{} .ri-pur{} .ri-tel{}
+.ri-amb{} .ri-gry{} .ri-ind{} .ri-cyn{}
+.ri-blu svg{stroke:#3c4043} .ri-grn svg{stroke:#3c4043} .ri-red svg{stroke:#3c4043}
+.ri-org svg{stroke:#3c4043} .ri-pur svg{stroke:#3c4043} .ri-tel svg{stroke:#3c4043}
+.ri-amb svg{stroke:#3c4043} .ri-gry svg{stroke:#3c4043} .ri-ind svg{stroke:#3c4043}
+.ri-cyn svg{stroke:#3c4043}
+/* letter icon colours (B I U S) — uniform too */
+.ri-blu-txt{background:#e8f0fe;color:#3c4043;box-shadow:0 0 0 1px #bdc1c6}
+.ri-ind-txt{background:#e8f0fe;color:#3c4043;box-shadow:0 0 0 1px #bdc1c6}
+/* ── Icon + attached arrow wrapper ── */
+.rib-box{display:inline-flex;align-items:stretch;flex-shrink:0;box-shadow:0 0 0 1px #bdc1c6;border-radius:5px}
+.rib-box .rib-icon{border-radius:5px 0 0 5px;box-shadow:none}
+.rib-arr{display:inline-flex;align-items:center;justify-content:center;width:13px;border:none;border-radius:0 5px 5px 0;cursor:pointer;font-size:9px;flex-shrink:0;padding:0;background:#d2e3fc;color:#3c4043;border-left:1px solid #bdc1c6}
+.rib-arr:hover{background:#c5d8fb}
+/* uniform arrow colours — all same */
+.ra-blu{background:#d2e3fc;color:#3c4043}
+.ra-grn{background:#d2e3fc;color:#3c4043}
+.ra-ind{background:#d2e3fc;color:#3c4043}
+.ra-org{background:#d2e3fc;color:#3c4043}
+.ra-pur{background:#d2e3fc;color:#3c4043}
+/* tall arrow for large paste button */
+.rib-arr.tall{height:28px}
+/* ── Orientation dropdown ── */
+.orient-wrap{position:relative;display:inline-flex}
+.orient-drop{position:fixed;background:#fff;border:1px solid #ccc;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,0.18);z-index:99999;width:195px;padding:3px 0;display:none}
+.orient-drop.open{display:block}
+.orient-item{padding:5px 12px;font-size:10px;cursor:pointer;color:#222;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.orient-item:hover{background:#e8f5e9;color:#1e6e3a}
+.orient-item svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.orient-divider{height:1px;background:#eee;margin:3px 0}
+body.dark .orient-drop{background:#2d2d2d;border-color:#555}
+body.dark .orient-item{color:#ccc}
+body.dark .orient-item:hover{background:#1a3a25;color:#4caf50}
+body.dark .rib-icon{filter:brightness(0.75)}
+body.dark .rib-icon:hover{filter:brightness(0.65)}
+body.dark .rib-arr{filter:brightness(0.7)}
+body.dark .qab-btn{background:rgba(255,255,255,0.08)}
+body.dark .qab-btn:hover{background:rgba(255,255,255,0.2)}
 </style>
 </head>
 <body>
 <div id="app">
+  <!-- Title bar — top row -->
   <div id="title-bar">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
     JainSheet
@@ -180,7 +304,15 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
     <span id="save-status"></span>
   </div>
 
-  <div id="ribbon">
+  <!-- QAB + ribbon tabs — same row so Home aligns with Save -->
+  <div id="ribbon-tabs-row">
+    <div id="quick-access-bar">
+      <button class="qab-btn" id="qab-file" onclick="showFileMenu(this)" title="File">&#9776; File</button>
+      <button class="qab-btn" onclick="qabSave()" title="Save (Ctrl+S)"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg></button>
+      <button class="qab-btn" onclick="doUndo()" title="Undo (Ctrl+Z)"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg></button>
+      <button class="qab-btn" onclick="doRedo()" title="Redo (Ctrl+Y)"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+      <button class="qab-btn" onclick="window.electronAPI.menuNew()" title="New Workbook (Ctrl+N)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></button>
+    </div>
     <div class="tab-bar">
       <button class="tab active" data-tab="home">Home</button>
       <button class="tab" data-tab="insert">Insert</button>
@@ -191,6 +323,9 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <button class="tab" data-tab="view">View</button>
       <button class="tab" data-tab="tools">Tools</button>
     </div>
+  </div>
+
+  <div id="ribbon">
 
     <!-- HOME -->
     <div class="tab-content active" id="tab-home">
@@ -199,35 +334,89 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="clipPaste()" title="Paste" style="height:40px;min-width:40px">
-              <svg viewBox="0 0 24 24" style="width:20px;height:20px;margin-bottom:2px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
-              Paste
-            </button>
+            <!-- Paste: square + attached arrow -->
+            <div class="rib-box">
+              <button class="rib-icon ri-26 ri-blu" onclick="clipPaste()" title="Paste">
+                <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+              </button>
+              <button class="rib-arr ra-blu" style="height:28px" onclick="togglePasteMenu(this)" title="Paste options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button>
+            </div>
+            <!-- Copy: square + attached arrow — same width as Paste -->
+            <div class="rib-box">
+              <button class="rib-icon ri-26 ri-grn" onclick="clipCopy()" title="Copy">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+              <button class="rib-arr ra-grn" style="height:28px" onclick="toggleCopyMenu(this)" title="Copy options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button>
+            </div>
           </div>
           <div class="rg-r2">
-            <button class="rb-icon" onclick="clipCut()" title="Cut"><svg viewBox="0 0 24 24"><circle cx="6" cy="20" r="2"/><circle cx="6" cy="4" r="2"/><line x1="8.12" y1="5.17" x2="19" y2="12"/><line x1="8.12" y1="18.83" x2="19" y2="12"/></svg></button>
-            <button class="rb-icon" onclick="clipCopy()" title="Copy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <!-- Cut -->
+            <button class="rib-icon ri-26 ri-red" onclick="clipCut()" title="Cut">
+              <svg viewBox="0 0 24 24"><circle cx="6" cy="20" r="2"/><circle cx="6" cy="4" r="2"/><line x1="8.12" y1="5.17" x2="19" y2="12"/><line x1="8.12" y1="18.83" x2="19" y2="12"/></svg>
+            </button>
+            <!-- Format Painter -->
+            <button class="rib-icon ri-26 ri-amb" id="btn-fmt-painter" onclick="formatPainter()" title="Format Painter">
+              <svg viewBox="0 0 24 24"><path d="M18 4a2 2 0 0 1 0 4H6"/><path d="M6 4v16"/><path d="M14 12l4 4-4 4"/></svg>
+            </button>
+            <!-- Clear Format -->
+            <button class="rib-icon ri-26 ri-gry" onclick="clearFormat()" title="Clear Format">
+              <svg viewBox="0 0 24 24"><path d="M20 20H7L3 16l10-10 7 7z"/><line x1="14" y1="4" x2="20" y2="10"/></svg>
+            </button>
           </div>
         </div>
         <div class="rg-label">Clipboard</div>
       </div>
 
       <!-- Font -->
-      <div class="rg">
-        <div class="rg-body">
-          <div class="rg-r1" style="gap:3px">
-            <select class="rs" id="font-family" onchange="applyFont()" style="width:108px">
+      <div class="rg" style="padding-top:0">
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1;justify-content:flex-end;padding-bottom:4px">
+          <!-- Zone 1: Font family + size selects — shifted down -->
+          <div style="display:flex;align-items:center;gap:5px;height:22px">
+            <select class="rs" id="font-family" onchange="applyFont()" style="width:150px;height:22px">
               <option>Arial</option><option>Calibri</option><option>Times New Roman</option><option>Courier New</option><option>Verdana</option><option>Georgia</option><option>Tahoma</option>
             </select>
-            <input class="ri" id="font-size" type="number" value="11" min="6" max="72" onchange="applyFontSize()">
+            <div style="display:inline-flex;align-items:stretch;box-shadow:0 0 0 1px #bdc1c6;border-radius:3px;overflow:hidden;height:22px;background:#fff">
+              <input class="ri" id="font-size" type="number" value="11" min="6" max="72" onchange="applyFontSize()" style="width:38px;border:none;border-radius:0;box-shadow:none;padding:2px 3px;text-align:center;font-size:10px;background:#fff">
+              <button onclick="toggleFontSizeMenu(this)" style="display:flex;align-items:center;justify-content:center;width:14px;background:#e8e8e8;border:none;border-left:1px solid #bdc1c6;cursor:pointer;font-size:8px;color:#555;padding:0"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button>
+            </div>
           </div>
-          <div class="rg-r2">
-            <button class="rb-icon" onclick="fmt('bold')" id="btn-bold" title="Bold" style="font-weight:900;font-size:13px;width:24px;height:24px;font-family:Georgia,serif">B</button>
-            <button class="rb-icon" onclick="fmt('italic')" id="btn-italic" title="Italic" style="font-style:italic;font-size:13px;width:24px;height:24px;font-family:Georgia,serif">I</button>
-            <button class="rb-icon" onclick="fmt('underline')" id="btn-underline" title="Underline" style="text-decoration:underline;font-size:12px;width:24px;height:24px">U</button>
-            <button class="rb-icon" onclick="fmt('strike')" title="Strikethrough" style="text-decoration:line-through;font-size:12px;width:24px;height:24px">S</button>
-            <button class="rb-icon" onclick="openFontColor(this)" title="Font Color"><svg viewBox="0 0 24 24"><path d="M9 3L5 20"/><path d="M15 3l4 17"/><path d="M7 14h10"/></svg></button>
-            <button class="rb-icon" onclick="openFillColor(this)" title="Fill Color"><svg viewBox="0 0 24 24"><path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 0 0 7.78 7.78z"/><line x1="19" y1="11" x2="21" y2="13"/></svg></button>
+          <!-- Zone 2: B I U S + colour icon buttons (bars excluded) -->
+          <div style="display:flex;align-items:center;gap:5px;height:28px">
+            <button class="rib-icon ri-26 ri-ind-txt" onclick="fmt('bold')" id="btn-bold" title="Bold" style="font-size:15px;font-family:Georgia,serif;font-weight:900">B</button>
+            <button class="rib-icon ri-26 ri-ind-txt" onclick="fmt('italic')" id="btn-italic" title="Italic" style="font-size:15px;font-family:Georgia,serif;font-style:italic;font-weight:400">I</button>
+            <button class="rib-icon ri-26 ri-ind-txt" onclick="fmt('underline')" id="btn-underline" title="Underline" style="font-size:14px;text-decoration:underline;font-weight:400">U</button>
+            <button class="rib-icon ri-26 ri-ind-txt" onclick="fmt('strike')" title="Strikethrough" style="font-size:14px;text-decoration:line-through;font-weight:400">S</button>
+            <!-- Font colour: icon+arrow box only (bar is in zone 3 below) -->
+            <div style="display:inline-flex;flex-direction:column;gap:3px;align-items:flex-start">
+              <div class="csb-main">
+                <button class="csb-icon" onclick="applyLastFontColor()" title="Apply last font color">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3c4043" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="overflow:visible;display:block"><path d="M5 19L12 5l7 14"/><path d="M8 13h8"/></svg>
+                </button>
+                <button class="csb-arrow" onclick="openFontColorPicker(this)" title="Choose font color">
+                  <svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg>
+                </button>
+              </div>
+            </div>
+            <!-- Fill colour: icon+arrow box only -->
+            <div style="display:inline-flex;flex-direction:column;gap:3px;align-items:flex-start">
+              <div class="csb-main">
+                <button class="csb-icon" onclick="applyLastFillColor()" title="Apply last fill color">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#3c4043" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="overflow:visible;display:block"><path d="M19 11l-8-8-8.5 8.5a5.5 5.5 0 0 0 7.78 7.78z"/><line x1="19" y1="11" x2="21" y2="13"/></svg>
+                </button>
+                <button class="csb-arrow" onclick="openFillColorPicker(this)" title="Choose fill color">
+                  <svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Zone 3: colour bars — exactly under icon boxes only (not under arrow strips) -->
+          <div style="display:flex;align-items:center;height:6px">
+            <!-- Spacer: 4×(28+5) = 132px to reach font icon -->
+            <div style="width:132px;flex-shrink:0"></div>
+            <div class="csb-bar" id="font-color-bar" style="background:#000000;border:1px solid #ffff00;box-sizing:border-box"></div>
+            <!-- Gap: 13px (font arrow) + 5px (flex gap) = 18px to reach fill icon -->
+            <div style="width:18px;flex-shrink:0"></div>
+            <div class="csb-bar" id="fill-color-bar" style="background:#ffff00;border:1px solid #000000;box-sizing:border-box"></div>
           </div>
         </div>
         <div class="rg-label">Font</div>
@@ -236,14 +425,38 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <!-- Alignment -->
       <div class="rg">
         <div class="rg-body">
-          <div class="rg-r1">
-            <button class="rb-icon" onclick="setAlign('left')" title="Align Left"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg></button>
-            <button class="rb-icon" onclick="setAlign('center')" title="Center"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button>
-            <button class="rb-icon" onclick="setAlign('right')" title="Align Right"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg></button>
+          <div class="rg-r1" style="gap:5px">
+            <button class="rib-icon ri-30 ri-tel" onclick="setAlign('left')" title="Align Left"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg></button>
+            <button class="rib-icon ri-30 ri-tel" onclick="setAlign('center')" title="Center"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg></button>
+            <button class="rib-icon ri-30 ri-tel" onclick="setAlign('right')" title="Align Right"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg></button>
+            <div class="rb-sep"></div>
+            <button class="rib-icon ri-30 ri-cyn" onclick="setIndent(1)" title="Increase Indent"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="9" y1="18" x2="21" y2="18"/><polyline points="3 10 7 12 3 14"/></svg></button>
+            <button class="rib-icon ri-30 ri-cyn" onclick="setIndent(-1)" title="Decrease Indent"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="9" y1="18" x2="21" y2="18"/><polyline points="7 10 3 12 7 14"/></svg></button>
+            <div class="rb-sep"></div>
+            <!-- Text Orientation: icon + attached arrow + dropdown -->
+            <div class="orient-wrap">
+              <div class="rib-box">
+                <button class="rib-icon ri-30 ri-pur" onclick="toggleOrientMenu(this)" title="Text Orientation"><svg viewBox="0 0 24 24"><line x1="5" y1="19" x2="19" y2="5"/><line x1="5" y1="5" x2="5" y2="19"/><line x1="5" y1="5" x2="19" y2="5"/></svg></button>
+                <button class="rib-arr ra-pur" style="height:30px" onclick="toggleOrientMenu(this)" title="Orientation options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button>
+              </div>
+              <div class="orient-drop" id="orient-drop">
+                <div class="orient-item" onclick="setTextOrientation('ccw');closeOrientMenu()"><svg viewBox="0 0 24 24" style="transform:rotate(-45deg)"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="8 9 12 5 16 9"/></svg>Angle Counterclockwise</div>
+                <div class="orient-item" onclick="setTextOrientation('cw');closeOrientMenu()"><svg viewBox="0 0 24 24" style="transform:rotate(45deg)"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="8 9 12 5 16 9"/></svg>Angle Clockwise</div>
+                <div class="orient-item" onclick="setTextOrientation('vertical');closeOrientMenu()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="8" y1="5" x2="16" y2="5"/></svg>Vertical Text</div>
+                <div class="orient-item" onclick="setTextOrientation('up');closeOrientMenu()"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="9 16 5 12 9 8"/></svg>Rotate Text Up</div>
+                <div class="orient-item" onclick="setTextOrientation('down');closeOrientMenu()"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="15 8 19 12 15 16"/></svg>Rotate Text Down</div>
+                <div class="orient-divider"></div>
+                <div class="orient-item" onclick="openModal('modal-format');closeOrientMenu()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Format Cell Alignment…</div>
+              </div>
+            </div>
           </div>
-          <div class="rg-r2">
-            <button class="rb-icon" onclick="mergeToggle()" title="Merge Cells"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="8" height="12" rx="1"/><rect x="14" y="6" width="8" height="12" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/></svg></button>
-            <button class="rb-icon" onclick="wrapToggle()" title="Wrap Text"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><path d="M3 12h15a3 3 0 0 1 0 6h-4"/><polyline points="11 15 8 18 11 21"/></svg></button>
+          <div class="rg-r2" style="gap:5px">
+            <button class="rib-icon ri-26 ri-tel" onclick="setVAlign('top')" title="Align Top"><svg viewBox="0 0 24 24"><line x1="3" y1="3" x2="21" y2="3"/><line x1="12" y1="7" x2="12" y2="21"/><polyline points="8 11 12 7 16 11"/></svg></button>
+            <button class="rib-icon ri-26 ri-tel" onclick="setVAlign('middle')" title="Align Middle"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="9"/><polyline points="8 7 12 3 16 7"/><line x1="12" y1="15" x2="12" y2="21"/><polyline points="16 17 12 21 8 17"/></svg></button>
+            <button class="rib-icon ri-26 ri-tel" onclick="setVAlign('bottom')" title="Align Bottom"><svg viewBox="0 0 24 24"><line x1="3" y1="21" x2="21" y2="21"/><line x1="12" y1="3" x2="12" y2="17"/><polyline points="16 13 12 17 8 13"/></svg></button>
+            <div class="rb-sep"></div>
+            <button class="rib-icon ri-26 ri-pur" onclick="mergeToggle()" title="Merge Cells"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="8" height="12" rx="1"/><rect x="14" y="6" width="8" height="12" rx="1"/><line x1="10" y1="12" x2="14" y2="12"/></svg></button>
+            <button class="rib-icon ri-26 ri-pur" onclick="wrapToggle()" title="Wrap Text"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><path d="M3 12h15a3 3 0 0 1 0 6h-4"/><polyline points="11 15 8 18 11 21"/></svg></button>
           </div>
         </div>
         <div class="rg-label">Alignment</div>
@@ -265,10 +478,13 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
               <option value="sci">Scientific</option>
             </select>
           </div>
-          <div class="rg-r2">
-            <button class="rb-icon" onclick="incDecimal(1)" title="Increase Decimal"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <span style="font-size:9px;color:#555;font-weight:bold">.0</span>
-            <button class="rb-icon" onclick="incDecimal(-1)" title="Decrease Decimal"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <div class="rg-r2" style="gap:5px;align-items:center">
+            <button class="rib-icon ri-26 ri-grn" onclick="applyNumFmt('currency')" title="₹ Currency" style="font-size:13px;font-weight:700;font-family:Arial">₹</button>
+            <button class="rib-icon ri-26 ri-grn" onclick="applyNumFmt('percent')" title="% Percent" style="font-size:13px;font-weight:700">%</button>
+            <button class="rib-icon ri-26 ri-grn" onclick="applyCommaFormat()" title="Comma (thousands separator)" style="font-size:13px;font-weight:700">,</button>
+            <div class="rb-sep"></div>
+            <button class="rib-icon ri-26 ri-gry" onclick="incDecimal(1)" title="Increase Decimal" style="font-size:9px;font-weight:700;font-family:monospace;letter-spacing:-0.5px">.00<br>+</button>
+            <button class="rib-icon ri-26 ri-gry" onclick="incDecimal(-1)" title="Decrease Decimal" style="font-size:9px;font-weight:700;font-family:monospace;letter-spacing:-0.5px">.00<br>−</button>
           </div>
         </div>
         <div class="rg-label">Number Format</div>
@@ -278,42 +494,30 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="applyStyle('good')" title="Good" style="background:#e8f5e9;color:#2e7d32"><svg viewBox="0 0 24 24" style="stroke:#2e7d32"><polyline points="20 6 9 17 4 12"/></svg>Good</button>
-            <button class="rb" onclick="applyStyle('bad')" title="Bad" style="background:#ffebee;color:#c0392b"><svg viewBox="0 0 24 24" style="stroke:#c0392b"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Bad</button>
+            <button class="rb-lbl" onclick="applyStyle('good')" title="Good" style="background:#e8f5e9;color:#2e7d32;box-shadow:0 0 0 1px #a5d6a7"><svg viewBox="0 0 24 24" style="stroke:#2e7d32"><polyline points="20 6 9 17 4 12"/></svg>Good</button>
+            <button class="rb-lbl" onclick="applyStyle('neutral')" title="Neutral" style="background:#fff8e1;color:#f57f17;box-shadow:0 0 0 1px #ffe082"><svg viewBox="0 0 24 24" style="stroke:#f57f17"><line x1="5" y1="12" x2="19" y2="12"/></svg>Neutral</button>
+            <button class="rb-lbl" onclick="applyStyle('bad')" title="Bad" style="background:#ffebee;color:#c0392b;box-shadow:0 0 0 1px #ef9a9a"><svg viewBox="0 0 24 24" style="stroke:#c0392b"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Bad</button>
           </div>
-          <div class="rg-r2">
-            <button class="rb" onclick="applyStyle('neutral')" title="Neutral" style="background:#fff8e1;color:#f57f17"><svg viewBox="0 0 24 24" style="stroke:#f57f17"><line x1="5" y1="12" x2="19" y2="12"/></svg>Neutral</button>
-            <button class="rb" onclick="condFormat()" title="Conditional Format"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Cond</button>
+          <div class="rg-r2" style="gap:5px">
+            <button class="rb" onclick="condFormat()" title="Conditional Format"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></button>
+            <button class="rb" onclick="openBorderPicker(this)" title="Borders"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></button>
+            <button class="rb" onclick="createTable()" title="Table"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button>
           </div>
         </div>
         <div class="rg-label">Styles</div>
       </div>
 
-      <!-- Format -->
-      <div class="rg">
-        <div class="rg-body">
-          <div class="rg-r1">
-            <button class="rb" id="btn-fmt-painter" onclick="formatPainter()" title="Format Painter — click to copy format, then click target cell"><svg viewBox="0 0 24 24"><path d="M18 4a2 2 0 0 1 0 4H6"/><path d="M6 4v16"/><path d="M14 12l4 4-4 4"/></svg>Paint</button>
-            <button class="rb" onclick="clearFormat()" title="Clear Format — remove all formatting, keep content"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16l10-10 7 7z"/><line x1="14" y1="4" x2="20" y2="10"/></svg>Clear Fmt</button>
-          </div>
-          <div class="rg-r2">
-            <button class="rb" onclick="openBorderPicker(this)" title="Borders — add or remove cell borders"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Borders</button>
-          </div>
-        </div>
-        <div class="rg-label">Format</div>
-      </div>
-
       <!-- Cells -->
       <div class="rg">
         <div class="rg-body">
-          <div class="rg-r1">
-            <button class="rb" onclick="insertRowAbove()" title="Insert Row"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Row+</button>
-            <button class="rb" onclick="deleteSelectedRow()" title="Delete Row"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Row-</button>
-            <button class="rb" onclick="insertColLeft()" title="Insert Column"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Col+</button>
+          <div class="rg-r1" style="gap:5px">
+            <button class="rib-icon ri-30 ri-grn" onclick="insertRowAbove()" title="Insert Row"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <button class="rib-icon ri-30 ri-red" onclick="deleteSelectedRow()" title="Delete Row"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+            <button class="rib-icon ri-30 ri-blu" onclick="insertColLeft()" title="Insert Column"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
           </div>
-          <div class="rg-r2">
-            <button class="rb" onclick="deleteSelectedCol()" title="Delete Column"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Col-</button>
-            <button class="rb" onclick="clearCells()" title="Clear Contents"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16l10-10 7 7z"/></svg>Clear</button>
+          <div class="rg-r2" style="gap:5px">
+            <button class="rib-icon ri-26 ri-red" onclick="deleteSelectedCol()" title="Delete Column"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
+            <button class="rib-icon ri-26 ri-gry" onclick="clearCells()" title="Clear Contents"><svg viewBox="0 0 24 24"><path d="M20 20H7L3 16l10-10 7 7z"/></svg></button>
           </div>
         </div>
         <div class="rg-label">Cells</div>
@@ -322,13 +526,23 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <!-- Editing -->
       <div class="rg">
         <div class="rg-body">
-          <div class="rg-r1">
-            <button class="rb" onclick="insertAutoSum()" title="AutoSum"><svg viewBox="0 0 24 24"><path d="M18 4H6l6 8-6 8h12"/></svg>Sum</button>
-            <button class="rb" onclick="doFind()" title="Find"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Find</button>
+          <div class="rg-r1" style="gap:5px">
+            <button class="rib-icon ri-30 ri-grn" onclick="insertAutoSum()" title="AutoSum"><svg viewBox="0 0 24 24"><path d="M18 4H6l6 8-6 8h12"/></svg></button>
+            <button class="rib-icon ri-30 ri-blu" onclick="doFind()" title="Find"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
           </div>
-          <div class="rg-r2">
-            <button class="rb" onclick="doReplace()" title="Replace"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>Replace</button>
-            <button class="rb" onclick="doSort(true)" title="Sort A→Z"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="13" y2="18"/><polyline points="15 9 18 3 21 9"/><line x1="18" y1="3" x2="18" y2="21"/></svg>Sort</button>
+          <div class="rg-r2" style="gap:5px">
+            <button class="rib-icon ri-26 ri-pur" onclick="doReplace()" title="Replace"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg></button>
+            <!-- Sort: icon + attached dropdown arrow -->
+            <div class="rib-box">
+              <button class="rib-icon ri-26 ri-org" onclick="doSort(true)" title="Sort A→Z">
+                <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="13" y2="18"/><polyline points="15 9 18 3 21 9"/><line x1="18" y1="3" x2="18" y2="21"/></svg>
+              </button>
+              <button class="rib-arr ra-org" style="height:28px" onclick="toggleSortMenu(this)" title="Sort options">
+                <svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg>
+              </button>
+            </div>
+            <!-- Filter -->
+            <button class="rib-icon ri-26 ri-tel" onclick="toggleFilter()" id="btn-filter-edit" title="Filter"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></button>
           </div>
         </div>
         <div class="rg-label">Editing</div>
@@ -341,12 +555,11 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="openModal('modal-chart')" title="Chart"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Chart</button>
-            <button class="rb" onclick="insertSparkline()" title="Sparkline"><svg viewBox="0 0 24 24"><polyline points="3 17 7 11 11 14 15 8 21 15"/></svg>Sparkline</button>
+            <button class="rb" onclick="openModal('modal-chart')" title="Chart"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>
+            <button class="rb-lbl" onclick="insertSparkline()" title="Sparkline"><svg viewBox="0 0 24 24"><polyline points="3 17 7 11 11 14 15 8 21 15"/></svg>Sparkline</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="createTable()" title="Table"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Table</button>
-            <button class="rb" onclick="insertAutoSum()" title="AutoSum"><svg viewBox="0 0 24 24"><path d="M18 4H6l6 8-6 8h12"/></svg>Sum</button>
+            <button class="rb" onclick="createTable()" title="Table"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button>
           </div>
         </div>
         <div class="rg-label">Charts & Tables</div>
@@ -354,11 +567,11 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="openModal('modal-link')" title="Hyperlink"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Link</button>
-            <button class="rb" onclick="openModal('modal-symbol')" title="Symbol"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Symbol</button>
+            <button class="rb" onclick="openModal('modal-link')" title="Hyperlink"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+            <button class="rb" onclick="openModal('modal-symbol')" title="Symbol"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="insertComment()" title="Comment"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button>
+            <button class="rb" onclick="insertComment()" title="Comment"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></button>
           </div>
         </div>
         <div class="rg-label">Links & More</div>
@@ -370,10 +583,10 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="setOrientation('portrait')" id="btn-portrait" title="Portrait"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/></svg>Portrait</button>
+            <button class="rb-lbl" onclick="setOrientation('portrait')" id="btn-portrait" title="Portrait" style="width:70px"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/></svg>Portrait</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="setOrientation('landscape')" id="btn-landscape" title="Landscape"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>Landscape</button>
+            <button class="rb-lbl" onclick="setOrientation('landscape')" id="btn-landscape" title="Landscape" style="width:70px"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/></svg>Landscape</button>
           </div>
         </div>
         <div class="rg-label">Orientation</div>
@@ -398,11 +611,11 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="insertPageBreak()" title="Insert Page Break"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="4 2"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>Break</button>
-            <button class="rb" onclick="removePageBreak()" title="Remove Page Break"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="18" y1="6" x2="6" y2="18"/></svg>Remove</button>
+            <button class="rb" onclick="insertPageBreak()" title="Insert Page Break"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="3" y1="14" x2="21" y2="14" stroke-dasharray="3 2"/></svg></button>
+            <button class="rb" onclick="removePageBreak()" title="Remove Page Break"><svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="setMargins()" title="Margins"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10"/></svg>Margins</button>
+            <button class="rb-lbl" onclick="setMargins()" title="Margins"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="7" y="7" width="10" height="10"/></svg>Margins</button>
           </div>
         </div>
         <div class="rg-label">Page Setup</div>
@@ -414,41 +627,366 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="openModal('modal-formula')" title="Insert Function"><svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>Insert Fn</button>
+            <button class="rb-lbl" onclick="openModal('modal-formula')" title="Insert Function" style="width:68px"><svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>Insert Fn</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="openModal('modal-namemanager')" title="Name Manager"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Name Mgr</button>
+            <button class="rb-lbl" onclick="openModal('modal-namemanager')" title="Name Manager" style="width:68px"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Name Mgr</button>
           </div>
         </div>
         <div class="rg-label">Function</div>
       </div>
-      <div class="rg">
-        <div class="rg-body">
-          <div class="rg-r1" style="flex-wrap:wrap;max-width:220px;gap:2px">
-            <button class="rb-sm" onclick="insertFn('SUM')">SUM</button>
-            <button class="rb-sm" onclick="insertFn('AVERAGE')">AVG</button>
-            <button class="rb-sm" onclick="insertFn('COUNT')">COUNT</button>
-            <button class="rb-sm" onclick="insertFn('MAX')">MAX</button>
-            <button class="rb-sm" onclick="insertFn('MIN')">MIN</button>
-            <button class="rb-sm" onclick="insertFn('IF')">IF</button>
-            <button class="rb-sm" onclick="insertFn('VLOOKUP')">VLOOKUP</button>
-            <button class="rb-sm" onclick="insertFn('CONCAT')">CONCAT</button>
-            <button class="rb-sm" onclick="insertFn('ROUND')">ROUND</button>
-            <button class="rb-sm" onclick="insertFn('TODAY')">TODAY</button>
-            <button class="rb-sm" onclick="insertFn('PMT')">PMT</button>
-            <button class="rb-sm" onclick="insertFn('LARGE')">LARGE</button>
+      <div class="rg" style="min-width:fit-content">
+        <div class="rg-body" style="gap:5px">
+          <div class="rg-r1" style="gap:5px">
+            <div class="fng" id="fng-statistical">
+              <div class="fng-box"><button class="fng-main" onclick="toggleFng('statistical')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Statistical</button><button class="fng-arr-btn" onclick="toggleFng('statistical')" title="Statistical options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button></div>
+              <div class="fng-drop" id="fnd-statistical">
+                <div class="fnd-sec">Average</div>
+                <div class="fnd-item" onclick="insertFn('AVERAGE')">AVERAGE</div>
+                <div class="fnd-item" onclick="insertFn('AVERAGEA')">AVERAGEA</div>
+                <div class="fnd-item" onclick="insertFn('AVERAGEIF')">AVERAGEIF</div>
+                <div class="fnd-item" onclick="insertFn('AVERAGEIFS')">AVERAGEIFS</div>
+                <div class="fnd-item" onclick="insertFn('GEOMEAN')">GEOMEAN</div>
+                <div class="fnd-item" onclick="insertFn('HARMEAN')">HARMEAN</div>
+                <div class="fnd-item" onclick="insertFn('TRIMMEAN')">TRIMMEAN</div>
+                <div class="fnd-sec">Count</div>
+                <div class="fnd-item" onclick="insertFn('COUNT')">COUNT</div>
+                <div class="fnd-item" onclick="insertFn('COUNTA')">COUNTA</div>
+                <div class="fnd-item" onclick="insertFn('COUNTBLANK')">COUNTBLANK</div>
+                <div class="fnd-item" onclick="insertFn('COUNTIF')">COUNTIF</div>
+                <div class="fnd-item" onclick="insertFn('COUNTIFS')">COUNTIFS</div>
+                <div class="fnd-sec">Min / Max</div>
+                <div class="fnd-item" onclick="insertFn('MAX')">MAX</div>
+                <div class="fnd-item" onclick="insertFn('MAXA')">MAXA</div>
+                <div class="fnd-item" onclick="insertFn('MIN')">MIN</div>
+                <div class="fnd-item" onclick="insertFn('MINA')">MINA</div>
+                <div class="fnd-item" onclick="insertFn('LARGE')">LARGE</div>
+                <div class="fnd-item" onclick="insertFn('SMALL')">SMALL</div>
+                <div class="fnd-sec">Spread</div>
+                <div class="fnd-item" onclick="insertFn('STDEV')">STDEV</div>
+                <div class="fnd-item" onclick="insertFn('STDEV.S')">STDEV.S</div>
+                <div class="fnd-item" onclick="insertFn('STDEV.P')">STDEV.P</div>
+                <div class="fnd-item" onclick="insertFn('STDEVA')">STDEVA</div>
+                <div class="fnd-item" onclick="insertFn('STDEVPA')">STDEVPA</div>
+                <div class="fnd-item" onclick="insertFn('VAR')">VAR</div>
+                <div class="fnd-item" onclick="insertFn('VAR.S')">VAR.S</div>
+                <div class="fnd-item" onclick="insertFn('VAR.P')">VAR.P</div>
+                <div class="fnd-item" onclick="insertFn('VARA')">VARA</div>
+                <div class="fnd-item" onclick="insertFn('VARPA')">VARPA</div>
+                <div class="fnd-item" onclick="insertFn('DEVSQ')">DEVSQ</div>
+                <div class="fnd-item" onclick="insertFn('AVEDEV')">AVEDEV</div>
+                <div class="fnd-sec">Rank / Position</div>
+                <div class="fnd-item" onclick="insertFn('MEDIAN')">MEDIAN</div>
+                <div class="fnd-item" onclick="insertFn('MODE')">MODE</div>
+                <div class="fnd-item" onclick="insertFn('MODE.MULT')">MODE.MULT</div>
+                <div class="fnd-item" onclick="insertFn('RANK')">RANK</div>
+                <div class="fnd-item" onclick="insertFn('RANK.AVG')">RANK.AVG</div>
+                <div class="fnd-item" onclick="insertFn('RANK.EQ')">RANK.EQ</div>
+                <div class="fnd-item" onclick="insertFn('QUARTILE')">QUARTILE</div>
+                <div class="fnd-item" onclick="insertFn('QUARTILE.INC')">QUARTILE.INC</div>
+                <div class="fnd-item" onclick="insertFn('QUARTILE.EXC')">QUARTILE.EXC</div>
+                <div class="fnd-item" onclick="insertFn('PERCENTILE')">PERCENTILE</div>
+                <div class="fnd-item" onclick="insertFn('PERCENTILE.INC')">PERCENTILE.INC</div>
+                <div class="fnd-item" onclick="insertFn('PERCENTILE.EXC')">PERCENTILE.EXC</div>
+                <div class="fnd-item" onclick="insertFn('PERCENTRANK')">PERCENTRANK</div>
+                <div class="fnd-item" onclick="insertFn('PERCENTRANK.INC')">PERCENTRANK.INC</div>
+                <div class="fnd-item" onclick="insertFn('PERCENTRANK.EXC')">PERCENTRANK.EXC</div>
+                <div class="fnd-item" onclick="insertFn('STANDARDIZE')">STANDARDIZE</div>
+                <div class="fnd-sec">Distribution</div>
+                <div class="fnd-item" onclick="insertFn('NORM.DIST')">NORM.DIST</div>
+                <div class="fnd-item" onclick="insertFn('NORM.INV')">NORM.INV</div>
+                <div class="fnd-item" onclick="insertFn('NORM.S.DIST')">NORM.S.DIST</div>
+                <div class="fnd-item" onclick="insertFn('NORM.S.INV')">NORM.S.INV</div>
+                <div class="fnd-item" onclick="insertFn('T.DIST')">T.DIST</div>
+                <div class="fnd-item" onclick="insertFn('T.INV')">T.INV</div>
+                <div class="fnd-item" onclick="insertFn('T.TEST')">T.TEST</div>
+                <div class="fnd-item" onclick="insertFn('CHISQ.DIST')">CHISQ.DIST</div>
+                <div class="fnd-item" onclick="insertFn('CHISQ.INV')">CHISQ.INV</div>
+                <div class="fnd-item" onclick="insertFn('BINOM.DIST')">BINOM.DIST</div>
+                <div class="fnd-item" onclick="insertFn('BINOM.DIST.RANGE')">BINOM.DIST.RANGE</div>
+                <div class="fnd-item" onclick="insertFn('POISSON.DIST')">POISSON.DIST</div>
+                <div class="fnd-item" onclick="insertFn('EXPON.DIST')">EXPON.DIST</div>
+                <div class="fnd-item" onclick="insertFn('WEIBULL.DIST')">WEIBULL.DIST</div>
+                <div class="fnd-item" onclick="insertFn('LOGNORM.DIST')">LOGNORM.DIST</div>
+                <div class="fnd-item" onclick="insertFn('LOGNORM.INV')">LOGNORM.INV</div>
+                <div class="fnd-item" onclick="insertFn('GAMMA.DIST')">GAMMA.DIST</div>
+                <div class="fnd-item" onclick="insertFn('GAMMA.INV')">GAMMA.INV</div>
+                <div class="fnd-item" onclick="insertFn('GAMMALN')">GAMMALN</div>
+                <div class="fnd-item" onclick="insertFn('BETA.DIST')">BETA.DIST</div>
+                <div class="fnd-item" onclick="insertFn('BETA.INV')">BETA.INV</div>
+                <div class="fnd-item" onclick="insertFn('F.DIST')">F.DIST</div>
+                <div class="fnd-item" onclick="insertFn('F.INV')">F.INV</div>
+                <div class="fnd-item" onclick="insertFn('F.TEST')">F.TEST</div>
+                <div class="fnd-item" onclick="insertFn('HYPGEOM.DIST')">HYPGEOM.DIST</div>
+                <div class="fnd-item" onclick="insertFn('NEGBINOM.DIST')">NEGBINOM.DIST</div>
+                <div class="fnd-item" onclick="insertFn('KURT')">KURT</div>
+                <div class="fnd-item" onclick="insertFn('SKEW')">SKEW</div>
+                <div class="fnd-item" onclick="insertFn('FREQUENCY')">FREQUENCY</div>
+                <div class="fnd-item" onclick="insertFn('PERMUT')">PERMUT</div>
+                <div class="fnd-item" onclick="insertFn('PROB')">PROB</div>
+                <div class="fnd-sec">Regression</div>
+                <div class="fnd-item" onclick="insertFn('CORREL')">CORREL</div>
+                <div class="fnd-item" onclick="insertFn('COVAR')">COVAR</div>
+                <div class="fnd-item" onclick="insertFn('COVARIANCE.P')">COVARIANCE.P</div>
+                <div class="fnd-item" onclick="insertFn('COVARIANCE.S')">COVARIANCE.S</div>
+                <div class="fnd-item" onclick="insertFn('PEARSON')">PEARSON</div>
+                <div class="fnd-item" onclick="insertFn('SLOPE')">SLOPE</div>
+                <div class="fnd-item" onclick="insertFn('INTERCEPT')">INTERCEPT</div>
+                <div class="fnd-item" onclick="insertFn('RSQ')">RSQ</div>
+                <div class="fnd-item" onclick="insertFn('STEYX')">STEYX</div>
+                <div class="fnd-item" onclick="insertFn('FORECAST')">FORECAST</div>
+                <div class="fnd-item" onclick="insertFn('LINEST')">LINEST</div>
+                <div class="fnd-item" onclick="insertFn('LOGEST')">LOGEST</div>
+                <div class="fnd-item" onclick="insertFn('TREND')">TREND</div>
+                <div class="fnd-item" onclick="insertFn('GROWTH')">GROWTH</div>
+              </div>
+            </div>
+            <div class="fng" id="fng-financial">
+              <div class="fng-box"><button class="fng-main" onclick="toggleFng('financial')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Financial</button><button class="fng-arr-btn" onclick="toggleFng('financial')" title="Financial options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button></div>
+              <div class="fng-drop" id="fnd-financial">
+                <div class="fnd-sec">Loan / Annuity</div>
+                <div class="fnd-item" onclick="insertFn('PMT')">PMT</div>
+                <div class="fnd-item" onclick="insertFn('IPMT')">IPMT</div>
+                <div class="fnd-item" onclick="insertFn('PPMT')">PPMT</div>
+                <div class="fnd-item" onclick="insertFn('NPER')">NPER</div>
+                <div class="fnd-item" onclick="insertFn('RATE')">RATE</div>
+                <div class="fnd-item" onclick="insertFn('PV')">PV</div>
+                <div class="fnd-item" onclick="insertFn('FV')">FV</div>
+                <div class="fnd-item" onclick="insertFn('CUMIPMT')">CUMIPMT</div>
+                <div class="fnd-item" onclick="insertFn('CUMPRINC')">CUMPRINC</div>
+                <div class="fnd-sec">Investment</div>
+                <div class="fnd-item" onclick="insertFn('NPV')">NPV</div>
+                <div class="fnd-item" onclick="insertFn('IRR')">IRR</div>
+                <div class="fnd-item" onclick="insertFn('MIRR')">MIRR</div>
+                <div class="fnd-item" onclick="insertFn('XNPV')">XNPV</div>
+                <div class="fnd-item" onclick="insertFn('XIRR')">XIRR</div>
+                <div class="fnd-item" onclick="insertFn('RRI')">RRI</div>
+                <div class="fnd-item" onclick="insertFn('PDURATION')">PDURATION</div>
+                <div class="fnd-sec">Depreciation</div>
+                <div class="fnd-item" onclick="insertFn('SLN')">SLN</div>
+                <div class="fnd-item" onclick="insertFn('DB')">DB</div>
+                <div class="fnd-item" onclick="insertFn('DDB')">DDB</div>
+                <div class="fnd-item" onclick="insertFn('SYD')">SYD</div>
+                <div class="fnd-item" onclick="insertFn('VDB')">VDB</div>
+                <div class="fnd-sec">Bonds / Securities</div>
+                <div class="fnd-item" onclick="insertFn('PRICE')">PRICE</div>
+                <div class="fnd-item" onclick="insertFn('YIELD')">YIELD</div>
+                <div class="fnd-item" onclick="insertFn('DURATION')">DURATION</div>
+                <div class="fnd-item" onclick="insertFn('DISC')">DISC</div>
+                <div class="fnd-item" onclick="insertFn('INTRATE')">INTRATE</div>
+                <div class="fnd-item" onclick="insertFn('RECEIVED')">RECEIVED</div>
+                <div class="fnd-item" onclick="insertFn('NOMINAL')">NOMINAL</div>
+                <div class="fnd-item" onclick="insertFn('FVSCHEDULE')">FVSCHEDULE</div>
+                <div class="fnd-item" onclick="insertFn('ISPMT')">ISPMT</div>
+              </div>
+            </div>
+            <div class="fng" id="fng-datetime">
+              <div class="fng-box"><button class="fng-main" onclick="toggleFng('datetime')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Date &amp; Time</button><button class="fng-arr-btn" onclick="toggleFng('datetime')" title="Date &amp; Time options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button></div>
+              <div class="fng-drop" id="fnd-datetime">
+                <div class="fnd-sec">Now / Today</div>
+                <div class="fnd-item" onclick="insertFn('TODAY')">TODAY</div>
+                <div class="fnd-item" onclick="insertFn('NOW')">NOW</div>
+                <div class="fnd-sec">Date Parts</div>
+                <div class="fnd-item" onclick="insertFn('DATE')">DATE</div>
+                <div class="fnd-item" onclick="insertFn('DATEVALUE')">DATEVALUE</div>
+                <div class="fnd-item" onclick="insertFn('YEAR')">YEAR</div>
+                <div class="fnd-item" onclick="insertFn('MONTH')">MONTH</div>
+                <div class="fnd-item" onclick="insertFn('DAY')">DAY</div>
+                <div class="fnd-item" onclick="insertFn('WEEKDAY')">WEEKDAY</div>
+                <div class="fnd-item" onclick="insertFn('WEEKNUM')">WEEKNUM</div>
+                <div class="fnd-item" onclick="insertFn('ISOWEEKNUM')">ISOWEEKNUM</div>
+                <div class="fnd-sec">Time Parts</div>
+                <div class="fnd-item" onclick="insertFn('TIME')">TIME</div>
+                <div class="fnd-item" onclick="insertFn('TIMEVALUE')">TIMEVALUE</div>
+                <div class="fnd-item" onclick="insertFn('HOUR')">HOUR</div>
+                <div class="fnd-item" onclick="insertFn('MINUTE')">MINUTE</div>
+                <div class="fnd-item" onclick="insertFn('SECOND')">SECOND</div>
+                <div class="fnd-sec">Differences / Work</div>
+                <div class="fnd-item" onclick="insertFn('DATEDIF')">DATEDIF</div>
+                <div class="fnd-item" onclick="insertFn('DAYS')">DAYS</div>
+                <div class="fnd-item" onclick="insertFn('DAYS360')">DAYS360</div>
+                <div class="fnd-item" onclick="insertFn('NETWORKDAYS')">NETWORKDAYS</div>
+                <div class="fnd-item" onclick="insertFn('NETWORKDAYS.INTL')">NETWORKDAYS.INTL</div>
+                <div class="fnd-item" onclick="insertFn('WORKDAY')">WORKDAY</div>
+                <div class="fnd-item" onclick="insertFn('WORKDAY.INTL')">WORKDAY.INTL</div>
+                <div class="fnd-item" onclick="insertFn('EDATE')">EDATE</div>
+                <div class="fnd-item" onclick="insertFn('EOMONTH')">EOMONTH</div>
+                <div class="fnd-item" onclick="insertFn('YEARFRAC')">YEARFRAC</div>
+              </div>
+            </div>
+            <div class="fng" id="fng-text">
+              <div class="fng-box"><button class="fng-main" onclick="toggleFng('text')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>Text</button><button class="fng-arr-btn" onclick="toggleFng('text')" title="Text options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button></div>
+              <div class="fng-drop" id="fnd-text">
+                <div class="fnd-sec">Join / Split</div>
+                <div class="fnd-item" onclick="insertFn('CONCAT')">CONCAT</div>
+                <div class="fnd-item" onclick="insertFn('CONCATENATE')">CONCATENATE</div>
+                <div class="fnd-item" onclick="insertFn('TEXTJOIN')">TEXTJOIN</div>
+                <div class="fnd-item" onclick="insertFn('LEFT')">LEFT</div>
+                <div class="fnd-item" onclick="insertFn('RIGHT')">RIGHT</div>
+                <div class="fnd-item" onclick="insertFn('MID')">MID</div>
+                <div class="fnd-item" onclick="insertFn('LEN')">LEN</div>
+                <div class="fnd-sec">Case</div>
+                <div class="fnd-item" onclick="insertFn('UPPER')">UPPER</div>
+                <div class="fnd-item" onclick="insertFn('LOWER')">LOWER</div>
+                <div class="fnd-item" onclick="insertFn('PROPER')">PROPER</div>
+                <div class="fnd-sec">Search / Replace</div>
+                <div class="fnd-item" onclick="insertFn('FIND')">FIND</div>
+                <div class="fnd-item" onclick="insertFn('SEARCH')">SEARCH</div>
+                <div class="fnd-item" onclick="insertFn('SUBSTITUTE')">SUBSTITUTE</div>
+                <div class="fnd-item" onclick="insertFn('REPLACE')">REPLACE</div>
+                <div class="fnd-sec">Format / Clean</div>
+                <div class="fnd-item" onclick="insertFn('TEXT')">TEXT</div>
+                <div class="fnd-item" onclick="insertFn('TRIM')">TRIM</div>
+                <div class="fnd-item" onclick="insertFn('CLEAN')">CLEAN</div>
+                <div class="fnd-item" onclick="insertFn('REPT')">REPT</div>
+                <div class="fnd-item" onclick="insertFn('EXACT')">EXACT</div>
+                <div class="fnd-item" onclick="insertFn('CHAR')">CHAR</div>
+                <div class="fnd-item" onclick="insertFn('CODE')">CODE</div>
+                <div class="fnd-item" onclick="insertFn('DOLLAR')">DOLLAR</div>
+                <div class="fnd-item" onclick="insertFn('FIXED')">FIXED</div>
+                <div class="fnd-item" onclick="insertFn('VALUE')">VALUE</div>
+                <div class="fnd-item" onclick="insertFn('NUMBERVALUE')">NUMBERVALUE</div>
+              </div>
+            </div>
           </div>
-          <div class="rg-r2"></div>
+          <div class="rg-r2" style="gap:5px">
+            <div class="fng" id="fng-logical">
+              <div class="fng-box"><button class="fng-main" onclick="toggleFng('logical')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Logical</button><button class="fng-arr-btn" onclick="toggleFng('logical')" title="Logical options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button></div>
+              <div class="fng-drop" id="fnd-logical">
+                <div class="fnd-item" onclick="insertFn('IF')">IF</div>
+                <div class="fnd-item" onclick="insertFn('IFS')">IFS</div>
+                <div class="fnd-item" onclick="insertFn('AND')">AND</div>
+                <div class="fnd-item" onclick="insertFn('OR')">OR</div>
+                <div class="fnd-item" onclick="insertFn('NOT')">NOT</div>
+                <div class="fnd-item" onclick="insertFn('XOR')">XOR</div>
+                <div class="fnd-item" onclick="insertFn('SWITCH')">SWITCH</div>
+                <div class="fnd-item" onclick="insertFn('IFERROR')">IFERROR</div>
+                <div class="fnd-item" onclick="insertFn('IFNA')">IFNA</div>
+                <div class="fnd-item" onclick="insertFn('TRUE')">TRUE</div>
+                <div class="fnd-item" onclick="insertFn('FALSE')">FALSE</div>
+              </div>
+            </div>
+            <div class="fng" id="fng-information">
+              <div class="fng-box"><button class="fng-main" onclick="toggleFng('information')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Information</button><button class="fng-arr-btn" onclick="toggleFng('information')" title="Information options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button></div>
+              <div class="fng-drop" id="fnd-information">
+                <div class="fnd-sec">Is-checks</div>
+                <div class="fnd-item" onclick="insertFn('ISBLANK')">ISBLANK</div>
+                <div class="fnd-item" onclick="insertFn('ISNUMBER')">ISNUMBER</div>
+                <div class="fnd-item" onclick="insertFn('ISTEXT')">ISTEXT</div>
+                <div class="fnd-item" onclick="insertFn('ISLOGICAL')">ISLOGICAL</div>
+                <div class="fnd-item" onclick="insertFn('ISERROR')">ISERROR</div>
+                <div class="fnd-item" onclick="insertFn('ISNA')">ISNA</div>
+                <div class="fnd-item" onclick="insertFn('ISERR')">ISERR</div>
+                <div class="fnd-item" onclick="insertFn('ISODD')">ISODD</div>
+                <div class="fnd-item" onclick="insertFn('ISEVEN')">ISEVEN</div>
+                <div class="fnd-item" onclick="insertFn('ISREF')">ISREF</div>
+                <div class="fnd-item" onclick="insertFn('ISFORMULA')">ISFORMULA</div>
+                <div class="fnd-item" onclick="insertFn('ISNONTEXT')">ISNONTEXT</div>
+                <div class="fnd-sec">Values</div>
+                <div class="fnd-item" onclick="insertFn('NA')">NA</div>
+                <div class="fnd-item" onclick="insertFn('N')">N</div>
+                <div class="fnd-item" onclick="insertFn('TYPE')">TYPE</div>
+                <div class="fnd-item" onclick="insertFn('ERROR.TYPE')">ERROR.TYPE</div>
+              </div>
+            </div>
+            <div class="fng" id="fng-math">
+              <div class="fng-box"><button class="fng-main" onclick="toggleFng('math')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Math &amp; Trig</button><button class="fng-arr-btn" onclick="toggleFng('math')" title="Math &amp; Trig options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button></div>
+              <div class="fng-drop" id="fnd-math">
+                <div class="fnd-sec">Sum</div>
+                <div class="fnd-item" onclick="insertFn('SUM')">SUM</div>
+                <div class="fnd-item" onclick="insertFn('SUMIF')">SUMIF</div>
+                <div class="fnd-item" onclick="insertFn('SUMIFS')">SUMIFS</div>
+                <div class="fnd-item" onclick="insertFn('SUMPRODUCT')">SUMPRODUCT</div>
+                <div class="fnd-item" onclick="insertFn('SUMSQ')">SUMSQ</div>
+                <div class="fnd-item" onclick="insertFn('SUBTOTAL')">SUBTOTAL</div>
+                <div class="fnd-sec">Round</div>
+                <div class="fnd-item" onclick="insertFn('ROUND')">ROUND</div>
+                <div class="fnd-item" onclick="insertFn('ROUNDUP')">ROUNDUP</div>
+                <div class="fnd-item" onclick="insertFn('ROUNDDOWN')">ROUNDDOWN</div>
+                <div class="fnd-item" onclick="insertFn('INT')">INT</div>
+                <div class="fnd-item" onclick="insertFn('TRUNC')">TRUNC</div>
+                <div class="fnd-item" onclick="insertFn('CEILING')">CEILING</div>
+                <div class="fnd-item" onclick="insertFn('FLOOR')">FLOOR</div>
+                <div class="fnd-item" onclick="insertFn('MROUND')">MROUND</div>
+                <div class="fnd-sec">Basic Math</div>
+                <div class="fnd-item" onclick="insertFn('ABS')">ABS</div>
+                <div class="fnd-item" onclick="insertFn('MOD')">MOD</div>
+                <div class="fnd-item" onclick="insertFn('POWER')">POWER</div>
+                <div class="fnd-item" onclick="insertFn('SQRT')">SQRT</div>
+                <div class="fnd-item" onclick="insertFn('SQRTPI')">SQRTPI</div>
+                <div class="fnd-item" onclick="insertFn('SIGN')">SIGN</div>
+                <div class="fnd-item" onclick="insertFn('PRODUCT')">PRODUCT</div>
+                <div class="fnd-item" onclick="insertFn('FACT')">FACT</div>
+                <div class="fnd-item" onclick="insertFn('FACTDOUBLE')">FACTDOUBLE</div>
+                <div class="fnd-item" onclick="insertFn('GCD')">GCD</div>
+                <div class="fnd-item" onclick="insertFn('LCM')">LCM</div>
+                <div class="fnd-item" onclick="insertFn('COMBIN')">COMBIN</div>
+                <div class="fnd-item" onclick="insertFn('PERMUT')">PERMUT</div>
+                <div class="fnd-item" onclick="insertFn('QUOTIENT')">QUOTIENT</div>
+                <div class="fnd-sec">Trig / Log</div>
+                <div class="fnd-item" onclick="insertFn('SIN')">SIN</div>
+                <div class="fnd-item" onclick="insertFn('COS')">COS</div>
+                <div class="fnd-item" onclick="insertFn('TAN')">TAN</div>
+                <div class="fnd-item" onclick="insertFn('ASIN')">ASIN</div>
+                <div class="fnd-item" onclick="insertFn('ACOS')">ACOS</div>
+                <div class="fnd-item" onclick="insertFn('ATAN')">ATAN</div>
+                <div class="fnd-item" onclick="insertFn('ATAN2')">ATAN2</div>
+                <div class="fnd-item" onclick="insertFn('SINH')">SINH</div>
+                <div class="fnd-item" onclick="insertFn('COSH')">COSH</div>
+                <div class="fnd-item" onclick="insertFn('TANH')">TANH</div>
+                <div class="fnd-item" onclick="insertFn('LOG')">LOG</div>
+                <div class="fnd-item" onclick="insertFn('LOG10')">LOG10</div>
+                <div class="fnd-item" onclick="insertFn('LN')">LN</div>
+                <div class="fnd-item" onclick="insertFn('EXP')">EXP</div>
+                <div class="fnd-item" onclick="insertFn('PI')">PI</div>
+                <div class="fnd-item" onclick="insertFn('DEGREES')">DEGREES</div>
+                <div class="fnd-item" onclick="insertFn('RADIANS')">RADIANS</div>
+                <div class="fnd-sec">Random / Matrix</div>
+                <div class="fnd-item" onclick="insertFn('RAND')">RAND</div>
+                <div class="fnd-item" onclick="insertFn('RANDBETWEEN')">RANDBETWEEN</div>
+                <div class="fnd-item" onclick="insertFn('SEQUENCE')">SEQUENCE</div>
+                <div class="fnd-item" onclick="insertFn('MMULT')">MMULT</div>
+                <div class="fnd-item" onclick="insertFn('MDETERM')">MDETERM</div>
+                <div class="fnd-item" onclick="insertFn('MINVERSE')">MINVERSE</div>
+                <div class="fnd-item" onclick="insertFn('ROMAN')">ROMAN</div>
+                <div class="fnd-item" onclick="insertFn('ARABIC')">ARABIC</div>
+              </div>
+            </div>
+            <div class="fng" id="fng-lookup">
+              <div class="fng-box"><button class="fng-main" onclick="toggleFng('lookup')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Lookup</button><button class="fng-arr-btn" onclick="toggleFng('lookup')" title="Lookup options"><svg viewBox="0 0 10 6" width="7" height="7" fill="none" stroke="#3c4043" stroke-width="2" stroke-linecap="round"><polyline points="1 1 5 5 9 1"/></svg></button></div>
+              <div class="fng-drop" id="fnd-lookup">
+                <div class="fnd-sec">Vertical / Horizontal</div>
+                <div class="fnd-item" onclick="insertFn('VLOOKUP')">VLOOKUP</div>
+                <div class="fnd-item" onclick="insertFn('HLOOKUP')">HLOOKUP</div>
+                <div class="fnd-sec">Index / Match</div>
+                <div class="fnd-item" onclick="insertFn('INDEX')">INDEX</div>
+                <div class="fnd-item" onclick="insertFn('MATCH')">MATCH</div>
+                <div class="fnd-sec">Reference</div>
+                <div class="fnd-item" onclick="insertFn('OFFSET')">OFFSET</div>
+                <div class="fnd-item" onclick="insertFn('INDIRECT')">INDIRECT</div>
+                <div class="fnd-item" onclick="insertFn('ADDRESS')">ADDRESS</div>
+                <div class="fnd-item" onclick="insertFn('CHOOSE')">CHOOSE</div>
+                <div class="fnd-item" onclick="insertFn('HYPERLINK')">HYPERLINK</div>
+                <div class="fnd-sec">Row / Column</div>
+                <div class="fnd-item" onclick="insertFn('ROW')">ROW</div>
+                <div class="fnd-item" onclick="insertFn('ROWS')">ROWS</div>
+                <div class="fnd-item" onclick="insertFn('COLUMN')">COLUMN</div>
+                <div class="fnd-item" onclick="insertFn('COLUMNS')">COLUMNS</div>
+                <div class="fnd-item" onclick="insertFn('TRANSPOSE')">TRANSPOSE</div>
+                <div class="fnd-item" onclick="insertFn('SEQUENCE')">SEQUENCE</div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="rg-label">Quick Formulas</div>
+        <div class="rg-label">Formula Categories</div>
       </div>
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="calcNow()" title="Calculate Now"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Calc Now</button>
+            <button class="rb-lbl" onclick="calcNow()" title="Calculate Now"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Calc Now</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="toggleAutoCalc()" id="btn-autocalc" title="Auto Calculate"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Auto Calc</button>
+            <button class="rb-lbl" onclick="toggleAutoCalc()" id="btn-autocalc" title="Auto Calculate"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Auto Calc</button>
           </div>
         </div>
         <div class="rg-label">Calculation</div>
@@ -460,11 +998,11 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="doSort(true)" title="Sort A-Z"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><polyline points="15 9 18 3 21 9"/><line x1="18" y1="3" x2="18" y2="21"/></svg>A→Z</button>
-            <button class="rb" onclick="doSort(false)" title="Sort Z-A"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><polyline points="15 15 18 21 21 15"/><line x1="18" y1="3" x2="18" y2="21"/></svg>Z→A</button>
+            <button class="rb-lbl" onclick="doSort(true)" title="Sort A-Z"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><polyline points="15 9 18 3 21 9"/><line x1="18" y1="3" x2="18" y2="21"/></svg>A→Z</button>
+            <button class="rb-lbl" onclick="doSort(false)" title="Sort Z-A"><svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="11" y2="6"/><polyline points="15 15 18 21 21 15"/><line x1="18" y1="3" x2="18" y2="21"/></svg>Z→A</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="openModal('modal-customsort')" title="Custom Sort"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>Custom</button>
+            <button class="rb-lbl" onclick="openModal('modal-customsort')" title="Custom Sort"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/></svg>Custom</button>
           </div>
         </div>
         <div class="rg-label">Sort</div>
@@ -472,10 +1010,10 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="toggleFilter()" id="btn-filter" title="Toggle Filter"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filter</button>
+            <button class="rb-lbl" onclick="toggleFilter()" id="btn-filter" title="Toggle Filter"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filter</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="clearFilter()" title="Clear Filter"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/><line x1="3" y1="3" x2="21" y2="21"/></svg>Clear</button>
+            <button class="rb-lbl" onclick="clearFilter()" title="Clear Filter"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/><line x1="3" y1="3" x2="21" y2="21"/></svg>Clear</button>
           </div>
         </div>
         <div class="rg-label">Filter</div>
@@ -483,10 +1021,10 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="highlightDuplicates()" title="Highlight Duplicates"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Hi-Dups</button>
+            <button class="rb-lbl" onclick="highlightDuplicates()" title="Highlight Duplicates" style="min-width:60px"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Hi-Dups</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="removeDuplicates()" title="Remove Duplicates"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><line x1="3" y1="3" x2="21" y2="21"/></svg>Rem-Dups</button>
+            <button class="rb-lbl" onclick="removeDuplicates()" title="Remove Duplicates" style="min-width:60px"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><line x1="3" y1="3" x2="21" y2="21"/></svg>Rem-Dups</button>
           </div>
         </div>
         <div class="rg-label">Duplicates</div>
@@ -494,10 +1032,10 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="textToColumns()" title="Text to Columns"><svg viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 7 12 3 16 7"/></svg>Text→Cols</button>
+            <button class="rb-lbl" onclick="textToColumns()" title="Text to Columns" style="min-width:68px"><svg viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="8 7 12 3 16 7"/></svg>Text→Cols</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="openDataValModal()" title="Data Validation"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Validation</button>
+            <button class="rb-lbl" onclick="openDataValModal()" title="Data Validation" style="min-width:68px"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Validation</button>
           </div>
         </div>
         <div class="rg-label">Data Tools</div>
@@ -505,7 +1043,7 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="openModal('modal-stats')" title="Data Analysis"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>Analysis</button>
+            <button class="rb-lbl" onclick="openModal('modal-stats')" title="Data Analysis"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>Analysis</button>
           </div>
           <div class="rg-r2"></div>
         </div>
@@ -518,7 +1056,7 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="spellCheck()" title="Spelling"><svg viewBox="0 0 24 24"><path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 0 1 6.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>Spelling</button>
+            <button class="rb-lbl" onclick="spellCheck()" title="Spelling"><svg viewBox="0 0 24 24"><path d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 0 1 6.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>Spelling</button>
           </div>
           <div class="rg-r2"></div>
         </div>
@@ -527,11 +1065,11 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="insertComment()" title="New Comment"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button>
-            <button class="rb" onclick="deleteComment()" title="Delete Comment"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>Del</button>
+            <button class="rb-lbl" onclick="insertComment()" title="New Comment" style="width:68px"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</button>
+            <button class="rb" onclick="deleteComment()" title="Delete Comment"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg></button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="toggleComments()" title="Show/Hide Comments"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Show All</button>
+            <button class="rb-lbl" onclick="toggleComments()" title="Show/Hide Comments" style="width:68px"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Show All</button>
           </div>
         </div>
         <div class="rg-label">Comments</div>
@@ -539,11 +1077,11 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="lockCell()" id="btn-lock" title="Lock Cell"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Lock Cell</button>
-            <button class="rb" onclick="openModal('modal-protect')" title="Protect Sheet"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Protect</button>
+            <button class="rb-lbl" onclick="lockCell()" id="btn-lock" title="Lock Cell"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Lock Cell</button>
+            <button class="rb-lbl" onclick="openModal('modal-protect')" title="Protect Sheet"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Protect</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="shareWorkbook()" title="Share Workbook"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
+            <button class="rb-lbl" onclick="shareWorkbook()" title="Share Workbook"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Share</button>
           </div>
         </div>
         <div class="rg-label">Protect</div>
@@ -555,10 +1093,10 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="setView('normal')" id="btn-viewnormal" title="Normal View"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Normal</button>
+            <button class="rb-lbl" onclick="setView('normal')" id="btn-viewnormal" title="Normal View" style="min-width:60px"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Normal</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="setView('pagebreak')" id="btn-viewpb" title="Page Break Preview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="3 2"/></svg>Page Brk</button>
+            <button class="rb-lbl" onclick="setView('pagebreak')" id="btn-viewpb" title="Page Break Preview" style="min-width:60px"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="3 2"/></svg>Page Brk</button>
           </div>
         </div>
         <div class="rg-label">View</div>
@@ -566,10 +1104,10 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="toggleFreeze()" id="btn-freeze" title="Freeze/Unfreeze Panes"><svg viewBox="0 0 24 24"><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Freeze</button>
+            <button class="rb-lbl" onclick="toggleFreeze()" id="btn-freeze" title="Freeze/Unfreeze Panes" style="min-width:50px"><svg viewBox="0 0 24 24"><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Freeze</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="toggleRuler()" id="btn-ruler" title="Toggle Ruler"><svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="1"/><line x1="6" y1="8" x2="6" y2="12"/><line x1="10" y1="8" x2="10" y2="11"/><line x1="14" y1="8" x2="14" y2="12"/><line x1="18" y1="8" x2="18" y2="11"/></svg>Ruler</button>
+            <button class="rb-lbl" onclick="toggleRuler()" id="btn-ruler" title="Toggle Ruler" style="min-width:50px"><svg viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="8" rx="1"/><line x1="6" y1="8" x2="6" y2="12"/><line x1="10" y1="8" x2="10" y2="11"/><line x1="14" y1="8" x2="14" y2="12"/><line x1="18" y1="8" x2="18" y2="11"/></svg>Ruler</button>
           </div>
         </div>
         <div class="rg-label">Freeze / Ruler</div>
@@ -577,11 +1115,11 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="toggleGridlines()" id="btn-grid" title="Toggle Gridlines"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Gridlines</button>
-            <button class="rb" onclick="toggleHeaders()" id="btn-headers" title="Toggle Headers"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/></svg>Headers</button>
+            <button class="rb-lbl" onclick="toggleGridlines()" id="btn-grid" title="Toggle Gridlines" style="width:72px"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>Gridlines</button>
+            <button class="rb-lbl" onclick="toggleHeaders()" id="btn-headers" title="Toggle Headers" style="width:72px"><svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/></svg>Headers</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="toggleDarkMode()" id="btn-darkmode" title="Toggle Dark Mode"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Dark Mode</button>
+            <button class="rb-lbl" onclick="toggleDarkMode()" id="btn-darkmode" title="Toggle Dark Mode" style="width:72px"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>Dark Mode</button>
           </div>
         </div>
         <div class="rg-label">Show</div>
@@ -589,12 +1127,12 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb-icon" onclick="zoomChange(-10)" title="Zoom Out"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
+            <button class="rb" onclick="zoomChange(-10)" title="Zoom Out"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
             <span id="zoom-val" style="font-size:10px;min-width:32px;text-align:center;font-weight:bold">100%</span>
-            <button class="rb-icon" onclick="zoomChange(10)" title="Zoom In"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
+            <button class="rb" onclick="zoomChange(10)" title="Zoom In"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg></button>
           </div>
           <div class="rg-r2" style="justify-content:center">
-            <button class="rb" onclick="zoomReset()" title="Reset Zoom"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>Reset</button>
+            <button class="rb-lbl" onclick="zoomReset()" title="Reset Zoom"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>Reset</button>
           </div>
         </div>
         <div class="rg-label">Zoom</div>
@@ -606,10 +1144,10 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="openModal('modal-macro')" title="Macros"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Macros</button>
+            <button class="rb-lbl" onclick="openModal('modal-macro')" title="Macros" style="min-width:52px"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Macros</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="openModal('modal-script')" title="Script Editor"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Script</button>
+            <button class="rb-lbl" onclick="openModal('modal-script')" title="Script Editor" style="min-width:52px"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Script</button>
           </div>
         </div>
         <div class="rg-label">Macros</div>
@@ -617,13 +1155,22 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
       <div class="rg">
         <div class="rg-body">
           <div class="rg-r1">
-            <button class="rb" onclick="openModal('modal-addins')" title="Add-ins"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Add-ins</button>
+            <button class="rb-lbl" onclick="openModal('modal-addins')" title="Add-ins"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Add-ins</button>
           </div>
           <div class="rg-r2">
-            <button class="rb" onclick="openModal('modal-options')" title="Options"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Options</button>
+            <button class="rb-lbl" onclick="openModal('modal-options')" title="Options"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Options</button>
           </div>
         </div>
         <div class="rg-label">Settings</div>
+      </div>
+      <div class="rg">
+        <div class="rg-body">
+          <div class="rg-r1">
+            <button class="rb-lbl" onclick="showShortcuts()" title="Keyboard Shortcuts"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="10"/><line x1="10" y1="10" x2="10" y2="10"/><line x1="14" y1="10" x2="14" y2="10"/><line x1="18" y1="10" x2="18" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/></svg>Shortcuts</button>
+          </div>
+          <div class="rg-r2"></div>
+        </div>
+        <div class="rg-label">Help</div>
       </div>
     </div>
   </div><!-- end ribbon -->
@@ -1007,5 +1554,58 @@ body.dark .sheet-tab-add{background:#333;color:#4caf50;border-color:#555}
 </div>
 
 <script src="renderer.js"></script>
+<script>
+// QAB Save — replicates the onSave IPC handler logic directly
+function qabSave() {
+  if (typeof currentFilePath === 'undefined' || !currentFilePath) {
+    window.electronAPI.triggerSaveAs();
+    return;
+  }
+  var ext = currentFilePath.split('.').pop().toLowerCase();
+  if (ext === 'xlsx' || ext === 'xls') { exportXlsx(currentFilePath); }
+  else if (ext === 'csv') { window.electronAPI.writeFile({ filePath: currentFilePath, content: exportCsv() }); }
+  else { window.electronAPI.writeFile({ filePath: currentFilePath, content: getState() }); }
+}
+
+// File dropdown menu
+function showFileMenu(btn) {
+  var existing = document.getElementById('_fileDropdown');
+  if (existing) { existing.remove(); return; }
+  var menu = document.createElement('div');
+  menu.id = '_fileDropdown';
+  menu.style.cssText = 'position:fixed;top:42px;left:10px;background:#fff;border:1px solid #ccc;border-radius:4px;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:9999;min-width:200px;padding:4px 0;font-size:12px;';
+  var items = [
+    { label: '📄  New Workbook',    fn: function(){ window.electronAPI.menuNew(); } },
+    { label: '📂  Open...',         fn: function(){ window.electronAPI.onOpen && window.electronAPI.menuOpen ? window.electronAPI.menuOpen() : null; } },
+    { label: '💾  Save',            fn: function(){ qabSave(); } },
+    { label: '💾  Save As...',      fn: function(){ window.electronAPI.triggerSaveAs(); } },
+    { label: '---' },
+    { label: '📊  Export as CSV',   fn: function(){ window.electronAPI.onExportCsv && window.electronAPI.onExportCsv(); } },
+    { label: '🖨️  Print / PDF',     fn: function(){ window.print(); } },
+  ];
+  items.forEach(function(item) {
+    if (item.label === '---') {
+      var sep = document.createElement('div');
+      sep.style.cssText = 'height:1px;background:#eee;margin:4px 0;';
+      menu.appendChild(sep);
+      return;
+    }
+    var el = document.createElement('div');
+    el.textContent = item.label;
+    el.style.cssText = 'padding:7px 16px;cursor:pointer;color:#333;';
+    el.onmouseover = function(){ el.style.background='#e8f0fe'; };
+    el.onmouseout  = function(){ el.style.background=''; };
+    el.onclick = function(){ menu.remove(); item.fn(); };
+    menu.appendChild(el);
+  });
+  document.body.appendChild(menu);
+  setTimeout(function() {
+    document.addEventListener('click', function handler(e) {
+      if (!menu.contains(e.target) && e.target !== btn) { menu.remove(); }
+      document.removeEventListener('click', handler);
+    });
+  }, 50);
+}
+</script>
 </body>
 </html>

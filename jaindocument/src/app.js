@@ -548,46 +548,93 @@ function toggleFullScreen() {
   else document.exitFullscreen?.();
 }
 
-// ─── Color pickers ────────────────────────────────────────────────────────────
+// ─── Colour palette popup ─────────────────────────────────────────────────────
+const COLOR_PALETTE = [
+  '#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#d9d9d9','#efefef','#f3f3f3','#ffffff',
+  '#ff0000','#ff4500','#ff9900','#ffff00','#00ff00','#00ffff','#4a86e8','#0000ff','#9900ff','#ff00ff',
+  '#f4cccc','#fce5cd','#fff2cc','#d9ead3','#d0e0e3','#c9daf8','#cfe2f3','#d9d2e9','#ead1dc','#fce4ec',
+  '#ea9999','#f9cb9c','#ffe599','#b6d7a8','#a2c4c9','#a4c2f4','#9fc5e8','#b4a7d6','#d5a6bd','#f48fb1',
+  '#e06666','#f6b26b','#ffd966','#93c47d','#76a5af','#6d9eeb','#6fa8dc','#8e7cc3','#c27ba0','#f06292',
+];
+
+let _clrTarget = null;
+
 function initColorPickers() {
-  const fc = document.getElementById('fontColor');
-  const hc = document.getElementById('highlightColor');
-  const bg = document.getElementById('bgFillColor');
+  const grid = document.getElementById('clr-palette-grid');
+  if (grid) {
+    COLOR_PALETTE.forEach(hex => {
+      const sw = document.createElement('div');
+      sw.className = 'clr-swatch';
+      sw.style.background = hex;
+      sw.title = hex;
+      sw.addEventListener('click', () => applyClrPalette(hex));
+      grid.appendChild(sw);
+    });
+  }
+  const custInp = document.getElementById('clr-custom-inp');
+  if (custInp) custInp.addEventListener('input', () => applyClrPalette(custInp.value));
+  const noneBtn = document.getElementById('clr-none-btn');
+  if (noneBtn) noneBtn.addEventListener('click', () => applyClrPalette(null));
+  document.addEventListener('mousedown', e => {
+    const pal = document.getElementById('clr-palette');
+    if (pal && !pal.contains(e.target) && !e.target.closest('.clr-btn')) {
+      pal.classList.remove('visible');
+    }
+  });
+}
 
-  if (fc) fc.addEventListener('input', () => { execCmd('foreColor', fc.value); markModified(); });
+function openClrPalette(target, btnId) {
+  _clrTarget = target;
+  const pal = document.getElementById('clr-palette');
+  const b   = document.getElementById(btnId);
+  if (!pal || !b) return;
+  if (pal.classList.contains('visible') && _clrTarget === target) {
+    pal.classList.remove('visible'); return;
+  }
+  const r = b.getBoundingClientRect();
+  pal.style.left = Math.min(r.left, window.innerWidth - 220) + 'px';
+  pal.style.top  = (r.bottom + 4) + 'px';
+  pal.classList.add('visible');
+}
 
-  if (hc) hc.addEventListener('input', () => {
-    const color = hc.value;
+function applyClrPalette(hex) {
+  const pal = document.getElementById('clr-palette');
+  if (pal) pal.classList.remove('visible');
+  const p = page(); if (!p) return;
+  if (_clrTarget === 'font') {
+    if (hex) {
+      execCmd('foreColor', hex);
+      const bar = document.getElementById('clr-bar-font');
+      if (bar) bar.style.background = hex;
+    } else {
+      execCmd('removeFormat');
+    }
+  } else if (_clrTarget === 'highlight') {
+    if (!hex) return;
+    const bar = document.getElementById('clr-bar-highlight');
+    if (bar) bar.style.background = hex;
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
-    // execCmd('backColor') doesn't work in Chromium — use span with inline style
     const range = sel.getRangeAt(0);
     const span  = document.createElement('span');
-    span.style.backgroundColor = color;
-    try {
-      range.surroundContents(span);
-    } catch (e) {
-      const frag = range.extractContents();
-      span.appendChild(frag);
-      range.insertNode(span);
-    }
+    span.style.backgroundColor = hex;
+    try { range.surroundContents(span); }
+    catch (e) { const frag = range.extractContents(); span.appendChild(frag); range.insertNode(span); }
     sel.removeAllRanges();
-    const newRange = document.createRange();
-    newRange.selectNodeContents(span);
-    sel.addRange(newRange);
-    markModified();
-  });
-
-  if (bg) bg.addEventListener('input', () => {
-    // Background fill — applies to the whole page background (Fix 1)
-    const color = bg.value;
-    const p = page();
-    if (p) p.style.backgroundColor = color;
-    // Update the Bg button preview
-    const bgSpan = bg.previousElementSibling;
-    if (bgSpan) bgSpan.style.background = color;
-    markModified();
-  });
+    const nr = document.createRange();
+    nr.selectNodeContents(span);
+    sel.addRange(nr);
+  } else if (_clrTarget === 'bg') {
+    const bar = document.getElementById('clr-bar-bg');
+    if (hex) {
+      p.style.backgroundColor = hex;
+      if (bar) { bar.style.background = hex; bar.style.border = 'none'; }
+    } else {
+      p.style.backgroundColor = '';
+      if (bar) { bar.style.background = '#fff'; bar.style.border = '1px solid #ccc'; }
+    }
+  }
+  markModified();
 }
 
 // ─── Image / Link ─────────────────────────────────────────────────────────────
@@ -804,7 +851,7 @@ function insertTOC() {
   const html = `<div class="toc-block" contenteditable="false">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8pt;border-bottom:1px solid #dde;padding-bottom:6pt">
       <b style="font-size:13pt;color:#1e4d8c">Table of Contents</b>
-      <button onclick="this.closest('.toc-block').remove()" style="font-size:11px;padding:2px 8px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#c00">✕ Remove</button>
+      <button data-action="remove-toc" style="font-size:11px;padding:2px 8px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;color:#c00">✕ Remove</button>
     </div>
     ${entries}
   </div><p><br></p>`;
@@ -838,8 +885,12 @@ function toggleWordCountPanel() {
         <button id="wc-target-set" style="padding:3px 10px;font-size:12px;border:1px solid #1e4d8c;border-radius:3px;background:#1e4d8c;color:#fff;cursor:pointer">Set</button>
       </div>
     </div>
-    <div style="margin-top:8px;text-align:right"><button onclick="document.getElementById('wordCountPanel').style.display='none'" style="font-size:11px;padding:2px 8px;cursor:pointer;border:1px solid #ccc;border-radius:3px">Close</button></div>`;
+    <div style="margin-top:8px;text-align:right"><button id="wc-panel-close" style="font-size:11px;padding:2px 8px;cursor:pointer;border:1px solid #ccc;border-radius:3px">Close</button></div>`;
   panel.style.display = 'block';
+  // Wire Close button (cannot use onclick= under context isolation — Bug 6 fix)
+  document.getElementById('wc-panel-close')?.addEventListener('click', () => {
+    panel.style.display = 'none';
+  });
   // Set button wired once via delegation in initWordTarget() — no btn() here (Bug 12 fix)
 }
 
@@ -1025,7 +1076,7 @@ function hideTablePicker() { const p = document.getElementById('tablePicker'); i
 // ─── Settings (file-based via IPC) ────────────────────────────────────────────
 let _currentSettings = null;
 function defaultSettings() {
-  return { spellCheck: true, showRuler: false, autoSave: false, defaultFont: 'Times New Roman', defaultFontSize: 12, darkMode: false, themeColor: '#1e4d8c', wordTarget: 0 };
+  return { spellCheck: true, showRuler: true, autoSave: false, defaultFont: 'Times New Roman', defaultFontSize: 12, darkMode: false, themeColor: '#1e4d8c', wordTarget: 0 };
 }
 async function loadSettings() {
   try {
@@ -1196,13 +1247,9 @@ function showFpRight(html) {
 }
 
 function initFilePanel() {
-  btn('btn-file-tab',  openFilePanel);
-  // Fix: use mousedown so click is not swallowed by overlay
-  const closeBtn = document.getElementById('btn-file-close');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeFilePanel(); });
-    closeBtn.addEventListener('mousedown', function(e) { e.stopPropagation(); });
-  }
+  // File panel close — wired here (onclick= removed from HTML to comply with context isolation)
+  btn('btn-file-close', closeFilePanel);
+  // Overlay click also closes
   document.getElementById('file-overlay')?.addEventListener('click', closeFilePanel);
 
   btn('fp-new',  () => { closeFilePanel(); window.electronAPI.menuNew(); });
@@ -1430,7 +1477,10 @@ function _loadTabState(tab) {
 // Render the tab bar
 function renderTabs() {
   const list = document.getElementById('tab-list');
+  const bar  = document.getElementById('tab-bar');
   if (!list) return;
+  // Hide tab bar when only one tab open
+  if (bar) bar.style.display = _tabs.length <= 1 ? 'none' : 'flex';
   list.innerHTML = _tabs.map((tab, i) => `
     <div class="doc-tab ${i === _activeTab ? 'active' : ''} ${tab.modified ? 'modified' : ''}"
          data-idx="${i}" title="${tab.filePath || tab.title}">
@@ -1578,6 +1628,191 @@ function initTabs() {
   renderTabs();
 }
 
+// ─── Font Dialog ──────────────────────────────────────────────────────────────
+function _getFontState() {
+  const p = page();
+  const sel = window.getSelection();
+  let fontFamily = '', fontSize = '', bold = false, italic = false,
+      underline = false, strikethrough = false, superscript = false,
+      subscript = false, color = '#000000', highlight = 'none';
+  if (p) {
+    const cs = window.getComputedStyle(p);
+    fontFamily = (document.getElementById('fontFamily')?.value) || cs.fontFamily.split(',')[0].replace(/['"]/g,'').trim();
+    fontSize   = (document.getElementById('fontSize')?.value)   || Math.round(parseFloat(cs.fontSize) * 0.75) + '';
+  }
+  if (sel && sel.rangeCount && !sel.isCollapsed) {
+    bold          = document.queryCommandState('bold');
+    italic        = document.queryCommandState('italic');
+    underline     = document.queryCommandState('underline');
+    strikethrough = document.queryCommandState('strikeThrough');
+    superscript   = document.queryCommandState('superscript');
+    subscript     = document.queryCommandState('subscript');
+    color         = document.queryCommandValue('foreColor') || '#000000';
+  }
+  return { fontFamily, fontSize, bold, italic, underline, strikethrough, superscript, subscript, color, highlight };
+}
+
+function openFontDialog() {
+  const state = _getFontState();
+  window.electronAPI.openFontDialog(state);
+}
+
+function _applyFontDialogResult(data) {
+  if (!data) return;
+  const p = page(); if (!p) return;
+
+  // Restore saved selection if present
+  if (data._savedRange) {
+    try {
+      const r = data._savedRange;
+      const range = document.createRange();
+      // Use execCommand to apply — simpler and more reliable
+    } catch(e) {}
+  }
+
+  p.focus();
+
+  // Apply font family
+  if (data.fontFamily) {
+    const ffEl = document.getElementById('fontFamily');
+    if (ffEl) ffEl.value = data.fontFamily;
+    execCmd('fontName', data.fontFamily);
+  }
+
+  // Apply font size
+  if (data.fontSize) {
+    const fsEl = document.getElementById('fontSize');
+    if (fsEl) fsEl.value = data.fontSize;
+    document.execCommand('fontSize', false, '7');
+    p.querySelectorAll('font[size="7"]').forEach(f => {
+      f.removeAttribute('size'); f.style.fontSize = data.fontSize + 'pt';
+    });
+  }
+
+  // Bold / italic / underline / strikethrough
+  const cmds = {
+    bold: data.bold, italic: data.italic,
+    underline: data.underline, strikeThrough: data.strikethrough,
+    superscript: data.superscript, subscript: data.subscript,
+  };
+  Object.entries(cmds).forEach(([cmd, on]) => {
+    const current = document.queryCommandState(cmd);
+    if (on !== undefined && on !== current) execCmd(cmd);
+  });
+
+  // Colour
+  if (data.color && data.color !== '#000000') {
+    execCmd('foreColor', data.color);
+  }
+
+  // Small caps / All caps — apply via span wrapping
+  if (data.smallCaps || data.allCaps) {
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount && !sel.isCollapsed) {
+      const range = sel.getRangeAt(0);
+      const span  = document.createElement('span');
+      span.style.fontVariant  = data.smallCaps ? 'small-caps' : '';
+      span.style.textTransform = data.allCaps  ? 'uppercase'  : '';
+      range.surroundContents(span);
+    }
+  }
+
+  // Text effects (outline, shadow etc.) via span
+  if (data.textEffects) {
+    const te = data.textEffects;
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount && !sel.isCollapsed) {
+      const range = sel.getRangeAt(0);
+      const span  = document.createElement('span');
+      if (te.outlineColor && te.outlineType !== 'none') {
+        span.style.webkitTextStroke = `${te.outlineWidth || 0.75}pt ${te.outlineColor}`;
+      }
+      if (te.shadow) {
+        span.style.textShadow = `${te.shadowOffsetX || 1}px ${te.shadowOffsetY || 1}px ${te.shadowBlur || 4}px ${te.shadowColor || 'rgba(0,0,0,0.5)'}`;
+      }
+      if (te.glow) {
+        span.style.textShadow = `0 0 ${te.glowSize || 8}px ${te.glowColor || '#0078d4'}`;
+      }
+      if (te.reflection) {
+        span.style.display = 'inline-block';
+      }
+      try { range.surroundContents(span); } catch(e) {}
+    }
+  }
+
+  markModified();
+  updateStatus();
+}
+
+// ─── Format Painter ───────────────────────────────────────────────────────────
+let _fmtPainterActive = false;
+let _fmtPainterStyles = null;
+
+function toggleFormatPainter() {
+  const btn = document.getElementById('btn-format-painter');
+  if (_fmtPainterActive) {
+    // Cancel if already active
+    _fmtPainterActive = false;
+    _fmtPainterStyles = null;
+    if (btn) btn.classList.remove('rbtn-active');
+    page().style.cursor = '';
+    return;
+  }
+  // Capture styles from current selection or cursor position
+  const sel = window.getSelection();
+  let el = null;
+  if (sel && sel.rangeCount > 0) {
+    const node = sel.getRangeAt(0).commonAncestorContainer;
+    el = node.nodeType === 3 ? node.parentElement : node;
+  }
+  if (!el || !page().contains(el)) {
+    alert('Place your cursor inside text to copy formatting from first.');
+    return;
+  }
+  const cs = window.getComputedStyle(el);
+  _fmtPainterStyles = {
+    fontFamily:    cs.fontFamily,
+    fontSize:      cs.fontSize,
+    fontWeight:    cs.fontWeight,
+    fontStyle:     cs.fontStyle,
+    textDecoration:cs.textDecoration,
+    color:         cs.color,
+    backgroundColor: el.style.backgroundColor || '',
+  };
+  _fmtPainterActive = true;
+  if (btn) btn.classList.add('rbtn-active');
+  page().style.cursor = 'crosshair';
+}
+
+function applyFormatPainter(e) {
+  if (!_fmtPainterActive || !_fmtPainterStyles) return;
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+  const range = sel.getRangeAt(0);
+  const span  = document.createElement('span');
+  const s = _fmtPainterStyles;
+  span.style.fontFamily     = s.fontFamily;
+  span.style.fontSize       = s.fontSize;
+  span.style.fontWeight     = s.fontWeight;
+  span.style.fontStyle      = s.fontStyle;
+  span.style.textDecoration = s.textDecoration;
+  span.style.color          = s.color;
+  if (s.backgroundColor) span.style.backgroundColor = s.backgroundColor;
+  try { range.surroundContents(span); }
+  catch (err) {
+    const frag = range.extractContents();
+    span.appendChild(frag);
+    range.insertNode(span);
+  }
+  // Deactivate after one use
+  _fmtPainterActive = false;
+  _fmtPainterStyles = null;
+  const btn = document.getElementById('btn-format-painter');
+  if (btn) btn.classList.remove('rbtn-active');
+  page().style.cursor = '';
+  markModified();
+}
+
 // ─── Wire all buttons ─────────────────────────────────────────────────────────
 // ─── Mail Merge ───────────────────────────────────────────────────────────────
 let _mmData      = [];   // array of row objects { field: value, ... }
@@ -1663,8 +1898,11 @@ function _renderFieldButtons() {
   const container = document.getElementById('mm-field-btns');
   if (!container) return;
   container.innerHTML = _mmHeaders.map(h =>
-    `<button class="mm-field-tag" onclick="insertMergeField('${h.replace(/'/g,"\\'")}')">{{${h}}}</button>`
+    `<button class="mm-field-tag" data-field="${h.replace(/"/g,'&quot;')}">{{${h}}}</button>`
   ).join('');
+  container.querySelectorAll('.mm-field-tag').forEach(tagBtn => {
+    tagBtn.addEventListener('click', () => insertMergeField(tagBtn.dataset.field));
+  });
 }
 function insertMergeField(fieldName) {
   execCmd('insertHTML', `<span class="mm-field-marker">{{${fieldName}}}</span>`);
@@ -2114,10 +2352,32 @@ function wireButtons() {
   // Window controls now handled natively by Windows titleBarOverlay
   // Custom snap popup removed — Windows provides native snap layout flyout
 
-  btn('btn-undo', () => undoManual());
-  btn('btn-redo', () => redoManual());
+  // Quick Access Bar
+  btn('qab-file', openFilePanel);
+  btn('qab-new',  () => newTab('', null, 'Untitled'));
+  btn('qab-save', () => window.electronAPI.menuSave());
+  btn('qab-undo', () => {
+    const p = page(); if (p) p.focus();
+    if (_undoStack.length === 0) { document.execCommand('undo'); return; }
+    _redoStack.push(p.innerHTML);
+    p.innerHTML = _undoStack.pop();
+    markModified(); updateStatus();
+  });
+  btn('qab-redo', () => {
+    const p = page(); if (p) p.focus();
+    if (_redoStack.length === 0) { document.execCommand('redo'); return; }
+    _undoStack.push(p.innerHTML);
+    p.innerHTML = _redoStack.pop();
+    markModified(); updateStatus();
+  });
+
+  // Colour palette buttons
+  btn('btn-font-color',      () => openClrPalette('font',      'btn-font-color'));
+  btn('btn-highlight-color', () => openClrPalette('highlight', 'btn-highlight-color'));
+  btn('btn-bg-color',        () => openClrPalette('bg',        'btn-bg-color'));
   btn('btn-cut',  () => { execCmd('cut');  markModified(); });
   btn('btn-copy', () => execCmd('copy'));
+  btn('btn-format-painter', toggleFormatPainter);
   btn('btn-paste', async () => {
     try {
       const text = await navigator.clipboard.readText();
@@ -2136,6 +2396,7 @@ function wireButtons() {
   btn('btn-super',     () => { execCmd('superscript');   markModified(); });
   btn('btn-sub',       () => { execCmd('subscript');     markModified(); });
   btn('btn-clear-fmt', () => { execCmd('removeFormat');  markModified(); });
+  btn('btn-font-dialog', openFontDialog);
 
   btn('btn-align-left',    () => { execCmd('justifyLeft');   markModified(); });
   btn('btn-align-center',  () => { execCmd('justifyCenter'); markModified(); });
@@ -2221,6 +2482,7 @@ function wireButtons() {
   btn('btn-col-1',          () => setColumns(1));
   btn('btn-col-2',          () => setColumns(2));
   btn('btn-col-3',          () => setColumns(3));
+  btn('btn-col-4',          () => setColumns(4));
 
   // Review
   btn('btn-spell-toggle', toggleSpell);
@@ -2267,10 +2529,12 @@ function wireButtons() {
   btn('btn-zoom-in',    () => setZoom(zoomLevel + 10));
   btn('btn-zoom-out',   () => setZoom(zoomLevel - 10));
   btn('btn-zoom-reset', () => setZoom(100));
-  btn('btn-ruler-toggle',     toggleRuler);
-  btn('btn-fmt-marks',        toggleFmtMarks);
-  btn('btn-fullscreen',       toggleFullScreen);
-  btn('btn-dark-mode',        toggleDarkMode);
+  btn('btn-ruler-toggle',      toggleRuler);
+  btn('btn-fmt-marks',         toggleFmtMarks);
+  btn('btn-fullscreen',        toggleFullScreen);
+  btn('btn-dark-mode',         toggleDarkMode);
+  btn('btn-reading-mode',      openReadingMode);
+  btn('btn-distraction-free',  openDfMode);
 
   const zs1 = document.getElementById('zoomSlider');
   if (zs1) zs1.addEventListener('input', () => setZoom(parseInt(zs1.value)));
@@ -2283,9 +2547,17 @@ function wireButtons() {
 // ─── Page listeners ───────────────────────────────────────────────────────────
 function initPage() {
   const p = page(); if (!p) return;
+  p.addEventListener('click', (e) => {
+    // TOC Remove button delegation (replaces onclick= which breaks under context isolation)
+    if (e.target.matches('[data-action="remove-toc"]')) {
+      e.target.closest('.toc-block')?.remove();
+      markModified();
+    }
+  });
   p.addEventListener('input', () => { markModified(); updatePlaceholder(); updateStatus(); });
   p.addEventListener('keyup',   updateStatus);
   p.addEventListener('mouseup', updateStatus);
+  p.addEventListener('mouseup', () => { if (_fmtPainterActive) applyFormatPainter(); });
   p.addEventListener('focus', () => {
     if (p.classList.contains('placeholder')) { p.innerHTML = ''; p.classList.remove('placeholder'); }
   });
@@ -2316,6 +2588,12 @@ function initPage() {
 
 // ─── IPC from main ────────────────────────────────────────────────────────────
 function initIPC() {
+  window.electronAPI.onFontDialogApply(data => _applyFontDialogResult(data));
+  window.electronAPI.onTextEffectsResult(data => {
+    // Text effects result comes back — main window applies it directly
+    _applyFontDialogResult({ textEffects: data });
+  });
+
   window.electronAPI.onNew(() => {
     // newTab() sets modified=false on the new tab — no markClean() needed (Bug 6 fix)
     newTab('', null, 'Untitled');
@@ -2376,6 +2654,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateStatus();
   const settings = await loadSettings();
   applySettings(settings);
+  // Always show ruler by default regardless of saved settings
+  // Use setTimeout to ensure page layout is complete before syncing ruler
+  const rulerEl = document.getElementById('ruler');
+  if (rulerEl) {
+    rulerEl.style.display = 'block';
+    _ruler.visible = true;
+    setTimeout(() => { _rulerSync(); _rulerDraw(); }, 300);
+  }
 });
 
 // ─── Real Spell Check ─────────────────────────────────────────────────────────

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Font</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%; font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 13px; background: #f0f0f0; color: #1a1a1a;
+  overflow: hidden; user-select: none;
+}
+body { display: flex; flex-direction: column; height: 100vh; }
+
+/* ── Tab bar ── */
+#tab-bar {
+  display: flex; background: #f0f0f0; border-bottom: 1px solid #ccc;
+  flex-shrink: 0; padding: 0 8px; padding-top: 6px;
+}
+.ftab {
+  padding: 6px 16px 5px; font-size: 12px; cursor: pointer;
+  border: 1px solid transparent; border-bottom: none;
+  border-radius: 4px 4px 0 0; color: #444; background: transparent;
+  margin-right: 2px; transition: all 0.1s;
+}
+.ftab:hover { background: #e0e8f8; }
+.ftab.active {
+  background: #fff; border-color: #ccc; border-bottom-color: #fff;
+  color: #1e4d8c; font-weight: 600; position: relative; top: 1px;
+}
+
+/* ── Panels ── */
+.fpanel { display: none; flex: 1; overflow-y: auto; padding: 14px 16px; }
+.fpanel.active { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── Section headers ── */
+.section-head {
+  font-size: 11px; font-weight: 700; color: #1a1a1a;
+  margin-bottom: 5px; padding-bottom: 3px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* ── Form rows ── */
+.frow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.flabel { font-size: 11px; color: #555; white-space: nowrap; min-width: 80px; }
+.flabel-sm { font-size: 11px; color: #555; white-space: nowrap; }
+.finput {
+  height: 23px; font-size: 12px; border: 1px solid #aaa; border-radius: 3px;
+  padding: 0 5px; background: #fff; outline: none; font-family: inherit;
+}
+.finput:focus { border-color: #5b9bd5; box-shadow: 0 0 0 2px rgba(91,155,213,0.2); }
+.fselect {
+  height: 23px; font-size: 12px; border: 1px solid #aaa; border-radius: 3px;
+  padding: 0 3px; background: #fff; cursor: pointer; outline: none; font-family: inherit;
+}
+.fselect:focus { border-color: #5b9bd5; }
+.fselect-lg { flex: 1; min-width: 100px; }
+.fselect-md { width: 100px; }
+.fselect-sm { width: 70px; }
+
+/* ── Highlight for the selected font field ── */
+#fd-latin-family { background: #e8f0ff; }
+
+/* ── Checkboxes ── */
+.chk-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px; margin-top: 2px;
+}
+.chk-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #222; cursor: pointer; }
+.chk-row input[type="checkbox"] { accent-color: #1e4d8c; width: 13px; height: 13px; cursor: pointer; }
+
+/* ── Preview box ── */
+#fd-preview-box {
+  border: 1px solid #ccc; border-radius: 3px; padding: 12px;
+  text-align: center; min-height: 52px; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+#fd-preview-text { font-size: 16px; color: #111; }
+#fd-preview-note { font-size: 11px; color: #1e4d8c; margin-top: 6px; line-height: 1.4; }
+
+/* ── Character Spacing panel ── */
+.cs-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.cs-label { font-size: 12px; color: #333; min-width: 72px; }
+.cs-select { height: 23px; font-size: 12px; border: 1px solid #aaa; border-radius: 3px; padding: 0 3px; background: #fff; width: 120px; }
+.cs-input { height: 23px; font-size: 12px; border: 1px solid #aaa; border-radius: 3px; padding: 0 5px; background: #fff; width: 70px; }
+.cs-unit { font-size: 11px; color: #555; }
+
+/* ── Footer ── */
+#fd-footer {
+  display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+  border-top: 1px solid #ccc; background: #f5f5f5; flex-shrink: 0;
+}
+.fd-btn {
+  padding: 4px 14px; font-size: 12px; border: 1px solid #aaa;
+  border-radius: 3px; background: #f0f0f0; cursor: pointer;
+  font-family: 'Segoe UI', Arial, sans-serif; transition: background 0.1s;
+}
+.fd-btn:hover { background: #e0e0e0; }
+.fd-btn-primary {
+  padding: 4px 20px; font-size: 12px; border: 1px solid #1e4d8c;
+  border-radius: 3px; background: #1e4d8c; color: #fff; cursor: pointer;
+  font-weight: 600; font-family: 'Segoe UI', Arial, sans-serif; transition: background 0.1s;
+}
+.fd-btn-primary:hover { background: #2a6ab5; }
+.fd-spacer { flex: 1; }
+
+/* ── Colour row ── */
+.color-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.color-field-wrap { display: flex; flex-direction: column; gap: 2px; }
+.color-field-label { font-size: 10px; color: #666; }
+.color-combo {
+  display: flex; align-items: center; height: 23px;
+  border: 1px solid #aaa; border-radius: 3px; background: #fff; overflow: hidden;
+}
+.color-combo-text {
+  flex: 1; height: 100%; border: none; outline: none;
+  font-size: 11px; padding: 0 4px; background: transparent; cursor: pointer;
+  font-family: 'Segoe UI', Arial, sans-serif; color: #222;
+}
+.color-combo-arrow { padding: 0 3px; font-size: 9px; color: #555; }
+</style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<div id="tab-bar">
+  <button class="ftab active" data-panel="font">Font</button>
+  <button class="ftab" data-panel="charspacing">Character Spacing</button>
+</div>
+
+<!-- ═══════════════════ FONT TAB ═══════════════════ -->
+<div class="fpanel active" id="panel-font">
+
+  <!-- Latin font -->
+  <div>
+    <div class="section-head">Latin text font</div>
+    <div class="frow">
+      <select class="fselect fselect-lg" id="fd-latin-family">
+        <option>Arial</option><option>Calibri</option><option>Cambria</option>
+        <option>Comic Sans MS</option><option>Courier New</option>
+        <option>Georgia</option><option>Helvetica</option><option>Impact</option>
+        <option>Palatino</option><option>Tahoma</option>
+        <option selected>Times New Roman</option>
+        <option>Trebuchet MS</option><option>Verdana</option>
+      </select>
+      <span class="flabel-sm" style="margin-left:4px">Style</span>
+      <select class="fselect fselect-md" id="fd-latin-style">
+        <option>Regular</option><option>Italic</option>
+        <option>Bold</option><option>Bold Italic</option>
+      </select>
+      <span class="flabel-sm">Size</span>
+      <input class="finput" id="fd-latin-size" type="number" value="12" min="1" max="999" step="0.5" style="width:58px">
+    </div>
+  </div>
+
+  <!-- Asian font -->
+  <div>
+    <div class="section-head">Asian text font</div>
+    <div class="frow">
+      <select class="fselect" style="width:200px" id="fd-asian-family">
+        <option>SimSun</option><option>SimHei</option><option>Microsoft YaHei</option>
+        <option>MS Gothic</option><option>Meiryo</option><option>Malgun Gothic</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Complex scripts -->
+  <div>
+    <div class="section-head">Complex scripts font</div>
+    <div class="frow">
+      <select class="fselect fselect-lg" id="fd-cplx-family">
+        <option>Arial</option><option>Calibri</option><option>Courier New</option>
+        <option>Georgia</option><option selected>Times New Roman</option>
+        <option>Tahoma</option><option>Verdana</option>
+      </select>
+      <span class="flabel-sm" style="margin-left:4px">Style</span>
+      <select class="fselect fselect-md" id="fd-cplx-style">
+        <option>Regular</option><option>Italic</option>
+        <option>Bold</option><option>Bold Italic</option>
+      </select>
+      <span class="flabel-sm">Size</span>
+      <input class="finput" id="fd-cplx-size" type="number" value="11" min="1" max="999" step="0.5" style="width:58px">
+    </div>
+  </div>
+
+  <!-- All text row: font colour, underline, emphasis -->
+  <div>
+    <div class="section-head">All text</div>
+    <div class="color-row">
+      <div class="color-field-wrap">
+        <span class="color-field-label">Font color</span>
+        <div class="color-combo">
+          <select class="color-combo-text" id="fd-font-color" style="min-width:90px">
+            <option value="auto">Automatic</option>
+            <option value="#000000">Black</option>
+            <option value="#ffffff">White</option>
+            <option value="#c00000">Dark Red</option>
+            <option value="#ff0000">Red</option>
+            <option value="#0070c0">Blue</option>
+            <option value="#00b050">Green</option>
+            <option value="#ffc000">Gold</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <input type="color" id="fd-font-color-picker" value="#000000"
+            style="width:22px;height:20px;border:none;padding:0;cursor:pointer;background:transparent;display:none">
+        </div>
+      </div>
+      <div class="color-field-wrap" style="margin-left:6px">
+        <span class="color-field-label">Underline style</span>
+        <select class="fselect" style="width:100px" id="fd-underline-style">
+          <option value="none">(None)</option>
+          <option value="single">Single</option>
+          <option value="double">Double ═</option>
+          <option value="dotted">Dotted ···</option>
+          <option value="dashed">Dashed ─ ─</option>
+          <option value="wave">Wavy ~~~</option>
+        </select>
+      </div>
+      <div class="color-field-wrap" id="fd-uline-color-wrap" style="margin-left:6px;opacity:0.4;pointer-events:none">
+        <span class="color-field-label">Underline color</span>
+        <select class="fselect" style="width:88px" id="fd-underline-color">
+          <option>Automatic</option>
+          <option>Black</option><option>Red</option><option>Blue</option>
+        </select>
+      </div>
+      <div class="color-field-wrap" style="margin-left:6px">
+        <span class="color-field-label">Emphasis mark</span>
+        <select class="fselect" style="width:80px" id="fd-emphasis">
+          <option value="none">(None)</option>
+          <option value="dot">Dot  ·</option>
+          <option value="circle">Circle  ○</option>
+          <option value="comma">Comma  ،</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Effects -->
+  <div>
+    <div class="section-head">Effects</div>
+    <div class="chk-grid">
+      <label class="chk-row"><input type="checkbox" id="fd-strikethrough"> Strikethrough</label>
+      <label class="chk-row"><input type="checkbox" id="fd-small-caps"> Small caps</label>
+      <label class="chk-row"><input type="checkbox" id="fd-dbl-strike"> Double strikethrough</label>
+      <label class="chk-row"><input type="checkbox" id="fd-all-caps"> All caps</label>
+      <label class="chk-row"><input type="checkbox" id="fd-superscript"> Superscript</label>
+      <label class="chk-row"><input type="checkbox" id="fd-hidden"> Hidden</label>
+      <label class="chk-row"><input type="checkbox" id="fd-subscript"> Subscript</label>
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div>
+    <div class="section-head">Preview</div>
+    <div id="fd-preview-box">
+      <span id="fd-preview-text">AaBbCcDd</span>
+    </div>
+    <p id="fd-preview-note">This is a TrueType font. This font will be used on both your printer and your screen.</p>
+  </div>
+
+</div>
+
+<!-- ═══════════════════ CHARACTER SPACING TAB ═══════════════════ -->
+<div class="fpanel" id="panel-charspacing">
+
+  <div style="margin-top:4px">
+    <div class="cs-row">
+      <span class="cs-label">Scale</span>
+      <select class="cs-select" id="cs-scale">
+        <option>100%</option><option>90%</option><option>80%</option>
+        <option>66%</option><option>50%</option><option>150%</option>
+        <option>200%</option>
+      </select>
+    </div>
+    <div class="cs-row">
+      <span class="cs-label">Spacing</span>
+      <select class="cs-select" id="cs-spacing-type">
+        <option>Normal</option><option>Expanded</option><option>Condensed</option>
+      </select>
+      <span class="cs-label" style="margin-left:6px;min-width:22px">By</span>
+      <input class="cs-input" id="cs-spacing-by" value="" placeholder="—" disabled>
+      <span class="cs-unit">pt</span>
+    </div>
+    <div class="cs-row">
+      <span class="cs-label">Position</span>
+      <select class="cs-select" id="cs-position-type">
+        <option>Normal</option><option>Raised</option><option>Lowered</option>
+      </select>
+      <span class="cs-label" style="margin-left:6px;min-width:22px">By</span>
+      <input class="cs-input" id="cs-position-by" value="" placeholder="—" disabled>
+      <span class="cs-unit">pt</span>
+    </div>
+    <div class="cs-row" style="margin-top:8px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" id="cs-kerning" style="accent-color:#1e4d8c;width:13px;height:13px">
+        Kerning for fonts
+      </label>
+      <input class="cs-input" id="cs-kerning-pt" value="8" style="width:50px;margin-left:4px">
+      <span class="cs-unit">points and above</span>
+    </div>
+    <div class="cs-row" style="margin-top:4px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+        <input type="checkbox" id="cs-snap-grid" checked style="accent-color:#1e4d8c;width:13px;height:13px">
+        Snap to grid when document grid is defined
+      </label>
+    </div>
+  </div>
+
+  <!-- Preview (same as Font tab) -->
+  <div style="margin-top:14px">
+    <div class="section-head">Preview</div>
+    <div id="fd-preview-box2" style="border:1px solid #ccc;border-radius:3px;padding:12px;text-align:center;min-height:52px;background:#fff;display:flex;align-items:center;justify-content:center;">
+      <span id="fd-preview-text2" style="font-size:16px;color:#111">AaBbCcDd</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<div id="fd-footer">
+  <button class="fd-btn" id="fd-set-default">Set As Default</button>
+  <button class="fd-btn" id="fd-text-effects">Text Effects...</button>
+  <div class="fd-spacer"></div>
+  <button class="fd-btn" id="fd-cancel">Cancel</button>
+  <button class="fd-btn-primary" id="fd-ok">OK</button>
+</div>
+
+<script>
+'use strict';
+const api = window.electronAPI;
+
+// ── Tab switching ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.ftab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.fpanel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+  });
+});
+
+// ── Font colour custom picker ──────────────────────────────────────────────────
+const fontColorSel = document.getElementById('fd-font-color');
+const fontColorPicker = document.getElementById('fd-font-color-picker');
+fontColorSel.addEventListener('change', () => {
+  if (fontColorSel.value === 'custom') {
+    fontColorPicker.style.display = 'block';
+    fontColorPicker.click();
+  } else {
+    fontColorPicker.style.display = 'none';
+  }
+  updatePreview();
+});
+fontColorPicker.addEventListener('input', updatePreview);
+
+// ── Underline colour enable/disable ───────────────────────────────────────────
+document.getElementById('fd-underline-style').addEventListener('change', function() {
+  const wrap = document.getElementById('fd-uline-color-wrap');
+  const isNone = this.value === 'none';
+  wrap.style.opacity       = isNone ? '0.4' : '1';
+  wrap.style.pointerEvents = isNone ? 'none' : 'auto';
+  updatePreview();
+});
+
+// ── Character spacing enable By field ─────────────────────────────────────────
+document.getElementById('cs-spacing-type').addEventListener('change', function() {
+  const inp = document.getElementById('cs-spacing-by');
+  inp.disabled = (this.value === 'Normal');
+  if (!inp.disabled && !inp.value) inp.value = '1';
+});
+document.getElementById('cs-position-type').addEventListener('change', function() {
+  const inp = document.getElementById('cs-position-by');
+  inp.disabled = (this.value === 'Normal');
+  if (!inp.disabled && !inp.value) inp.value = '3';
+});
+document.getElementById('cs-kerning').addEventListener('change', function() {
+  document.getElementById('cs-kerning-pt').disabled = !this.checked;
+});
+
+// ── Live preview ───────────────────────────────────────────────────────────────
+let _teState = null; // saved from text effects dialog
+
+function updatePreview() {
+  const family = document.getElementById('fd-latin-family').value;
+  const size   = parseFloat(document.getElementById('fd-latin-size').value) || 12;
+  const style  = document.getElementById('fd-latin-style').value;
+  const isBold   = style.includes('Bold');
+  const isItalic = style.includes('Italic');
+
+  const colorVal = fontColorSel.value;
+  const color = colorVal === 'auto' ? '#111'
+              : colorVal === 'custom' ? fontColorPicker.value
+              : colorVal;
+
+  const strikethrough = document.getElementById('fd-strikethrough').checked;
+  const dblStrike     = document.getElementById('fd-dbl-strike').checked;
+  const ulineStyle    = document.getElementById('fd-underline-style').value;
+
+  let textDeco = [];
+  if (strikethrough || dblStrike) textDeco.push('line-through');
+  if (ulineStyle !== 'none') textDeco.push('underline');
+
+  const smallCaps = document.getElementById('fd-small-caps').checked;
+  const allCaps   = document.getElementById('fd-all-caps').checked;
+  const sup       = document.getElementById('fd-superscript').checked;
+  const sub       = document.getElementById('fd-subscript').checked;
+
+  let txt = document.getElementById('fd-preview-text');
+  let txt2 = document.getElementById('fd-preview-text2');
+
+  [txt, txt2].forEach(el => {
+    if (!el) return;
+    el.style.fontFamily    = family;
+    el.style.fontSize      = Math.min(size, 24) + 'pt';
+    el.style.fontWeight    = isBold   ? 'bold'   : 'normal';
+    el.style.fontStyle     = isItalic ? 'italic' : 'normal';
+    el.style.color         = color;
+    el.style.textDecoration = textDeco.join(' ') || 'none';
+    el.style.fontVariant   = smallCaps ? 'small-caps' : 'normal';
+    el.style.textTransform = allCaps   ? 'uppercase'  : 'none';
+    el.style.verticalAlign = sup ? 'super' : sub ? 'sub' : 'baseline';
+    el.style.fontSize      = (sup || sub) ? Math.min(size * 0.7, 16) + 'pt' : Math.min(size, 24) + 'pt';
+    if (_teState) {
+      if (_teState.outlineColor && _teState.outlineType !== 'none') {
+        el.style.webkitTextStroke = `${_teState.outlineWidth || 0.75}pt ${_teState.outlineColor}`;
+      }
+      if (_teState.shadow) {
+        el.style.textShadow = `${_teState.shadowOffsetX||1}px ${_teState.shadowOffsetY||1}px ${_teState.shadowBlur||4}px ${_teState.shadowColor||'rgba(0,0,0,0.5)'}`;
+      }
+    }
+  });
+
+  // Character spacing
+  const csTxt = document.getElementById('cs-spacing-type')?.value;
+  const csBy  = parseFloat(document.getElementById('cs-spacing-by')?.value) || 0;
+  if (csTxt === 'Expanded')  { [txt, txt2].forEach(el => el && (el.style.letterSpacing = csBy + 'pt')); }
+  else if (csTxt === 'Condensed') { [txt, txt2].forEach(el => el && (el.style.letterSpacing = '-' + csBy + 'pt')); }
+  else { [txt, txt2].forEach(el => el && (el.style.letterSpacing = 'normal')); }
+
+  const csPos = document.getElementById('cs-position-type')?.value;
+  const csPBy = parseFloat(document.getElementById('cs-position-by')?.value) || 0;
+  if (csPos === 'Raised')  { [txt, txt2].forEach(el => el && (el.style.position = 'relative', el.style.top = '-' + csPBy + 'pt')); }
+  else if (csPos === 'Lowered') { [txt, txt2].forEach(el => el && (el.style.position = 'relative', el.style.top = csPBy + 'pt')); }
+  else { [txt, txt2].forEach(el => el && (el.style.position = 'static', el.style.top = '0')); }
+}
+
+// Update preview on any input change
+document.querySelectorAll('select, input[type="checkbox"], input[type="number"]').forEach(el => {
+  el.addEventListener('change', updatePreview);
+  el.addEventListener('input',  updatePreview);
+});
+
+// ── Receive initial state from main renderer ───────────────────────────────────
+api.onFontDialogInit(state => {
+  if (!state) return;
+  const setV = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  const setC = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+
+  setV('fd-latin-family', state.fontFamily);
+  setV('fd-latin-size',   state.fontSize || 12);
+
+  // Style dropdown
+  const styleSel = document.getElementById('fd-latin-style');
+  if (state.bold && state.italic) styleSel.value = 'Bold Italic';
+  else if (state.bold)            styleSel.value = 'Bold';
+  else if (state.italic)          styleSel.value = 'Italic';
+  else                            styleSel.value = 'Regular';
+
+  setC('fd-strikethrough', state.strikethrough);
+  setC('fd-superscript',   state.superscript);
+  setC('fd-subscript',     state.subscript);
+
+  // Color
+  if (state.color && state.color !== '#000000') {
+    fontColorSel.value = state.color;
+    if (!Array.from(fontColorSel.options).some(o => o.value === state.color)) {
+      fontColorSel.value = 'custom';
+      fontColorPicker.value = state.color;
+    }
+  }
+
+  updatePreview();
+});
+
+// ── Receive text effects result ────────────────────────────────────────────────
+api.onTextEffectsResult(data => {
+  _teState = data;
+  updatePreview();
+});
+
+// ── Build result object ────────────────────────────────────────────────────────
+function buildResult() {
+  const styleSel = document.getElementById('fd-latin-style').value;
+  return {
+    fontFamily:    document.getElementById('fd-latin-family').value,
+    fontSize:      parseFloat(document.getElementById('fd-latin-size').value) || 12,
+    bold:          styleSel.includes('Bold'),
+    italic:        styleSel.includes('Italic'),
+    underline:     document.getElementById('fd-underline-style').value !== 'none',
+    underlineStyle:document.getElementById('fd-underline-style').value,
+    strikethrough: document.getElementById('fd-strikethrough').checked,
+    dblStrike:     document.getElementById('fd-dbl-strike').checked,
+    superscript:   document.getElementById('fd-superscript').checked,
+    subscript:     document.getElementById('fd-subscript').checked,
+    smallCaps:     document.getElementById('fd-small-caps').checked,
+    allCaps:       document.getElementById('fd-all-caps').checked,
+    hidden:        document.getElementById('fd-hidden').checked,
+    color:         fontColorSel.value === 'custom' ? fontColorPicker.value
+                                                   : fontColorSel.value === 'auto' ? null
+                                                   : fontColorSel.value,
+    charSpacingType:  document.getElementById('cs-spacing-type').value,
+    charSpacingBy:    parseFloat(document.getElementById('cs-spacing-by').value) || 0,
+    charPositionType: document.getElementById('cs-position-type').value,
+    charPositionBy:   parseFloat(document.getElementById('cs-position-by').value) || 0,
+    kerning:          document.getElementById('cs-kerning').checked,
+    kerningPt:        parseFloat(document.getElementById('cs-kerning-pt').value) || 8,
+    textEffects:      _teState || null,
+  };
+}
+
+// ── Buttons ────────────────────────────────────────────────────────────────────
+document.getElementById('fd-ok').addEventListener('click', () => {
+  api.fontDialogApply(buildResult());
+});
+
+document.getElementById('fd-cancel').addEventListener('click', () => {
+  window.close();
+});
+
+document.getElementById('fd-text-effects').addEventListener('click', () => {
+  api.openTextEffects(_teState);
+});
+
+document.getElementById('fd-set-default').addEventListener('click', () => {
+  const r = buildResult();
+  api.fontDialogApply({ ...r, setDefault: true });
+});
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') window.close();
+  if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') {
+    api.fontDialogApply(buildResult());
+  }
+});
+</script>
+</body>
+</html>

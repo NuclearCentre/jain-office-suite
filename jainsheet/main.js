@@ -32,14 +32,15 @@ function createWindow() {
     title: 'JainSheet',
     icon: path.join(__dirname, 'icon.ico'),
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
+      nodeIntegration: true,
+      contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
     },
     show: false
   });
 
   mainWindow.loadFile('index.html');
+  mainWindow.setMenuBarVisibility(false);
   mainWindow.once('ready-to-show', () => mainWindow.show());
 
   async function handleClose(e) {
@@ -71,111 +72,6 @@ function createWindow() {
 function buildMenu() {
   const template = [
     {
-      label: 'File',
-      submenu: [
-        {
-          label: 'New',
-          accelerator: 'CmdOrCtrl+N',
-          click: () => mainWindow.webContents.send('menu-new')
-        },
-        {
-          label: 'Open...',
-          accelerator: 'CmdOrCtrl+O',
-          click: async () => {
-            const result = await dialog.showOpenDialog(mainWindow, {
-              defaultPath: 'D:\\JainSheet',
-              filters: [
-                { name: 'JainSheet Files', extensions: ['json'] },
-                { name: 'Excel Files', extensions: ['xlsx', 'xls'] },
-                { name: 'CSV Files', extensions: ['csv'] },
-                { name: 'All Files', extensions: ['*'] }
-              ],
-              properties: ['openFile']
-            });
-            if (!result.canceled && result.filePaths.length > 0) {
-              const filePath = result.filePaths[0];
-              const ext = path.extname(filePath).toLowerCase();
-              // xlsx/xls are binary — read as base64 so SheetJS can decode correctly
-              const isBinary = (ext === '.xlsx' || ext === '.xls');
-              const content = isBinary
-                ? fs.readFileSync(filePath).toString('base64')
-                : fs.readFileSync(filePath, 'utf8');
-              mainWindow.webContents.send('menu-open', { content, filePath, isBinary });
-              addToRecentSuite(filePath);
-            }
-          }
-        },
-        {
-          label: 'Save',
-          accelerator: 'CmdOrCtrl+S',
-          click: () => mainWindow.webContents.send('menu-save')
-        },
-        {
-          label: 'Save As...',
-          accelerator: 'CmdOrCtrl+Shift+S',
-          click: async () => {
-            const result = await dialog.showSaveDialog(mainWindow, {
-              defaultPath: 'D:\\JainSheet\\Book1',
-              filters: [
-                { name: 'Excel Workbook (.xlsx)', extensions: ['xlsx'] },
-                { name: 'Excel 97-2003 (.xls)', extensions: ['xls'] },
-                { name: 'JainSheet File (.json)', extensions: ['json'] },
-                { name: 'CSV File (.csv)', extensions: ['csv'] }
-              ]
-            });
-            if (!result.canceled) {
-              mainWindow.webContents.send('menu-saveas', result.filePath);
-            }
-          }
-        },
-        { type: 'separator' },
-        {
-          label: 'Import CSV...',
-          accelerator: 'CmdOrCtrl+I',
-          click: async () => {
-            const result = await dialog.showOpenDialog(mainWindow, {
-              defaultPath: 'D:\\JainSheet',
-              filters: [{ name: 'CSV Files', extensions: ['csv'] }],
-              properties: ['openFile']
-            });
-            if (!result.canceled && result.filePaths.length > 0) {
-              const content = fs.readFileSync(result.filePaths[0], 'utf8');
-              mainWindow.webContents.send('menu-importcsv', { content, filePath: result.filePaths[0] });
-            }
-          }
-        },
-        {
-          label: 'Export as CSV',
-          click: async () => {
-            const result = await dialog.showSaveDialog(mainWindow, {
-              defaultPath: 'D:\\JainSheet\\Export.csv',
-              filters: [{ name: 'CSV', extensions: ['csv'] }]
-            });
-            if (!result.canceled) mainWindow.webContents.send('menu-exportcsv', result.filePath);
-          }
-        },
-        {
-          label: 'Print / Export PDF',
-          accelerator: 'CmdOrCtrl+P',
-          click: async () => {
-            const result = await dialog.showSaveDialog(mainWindow, {
-              defaultPath: 'D:\\JainSheet\\JainSheet-Print.pdf',
-              filters: [{ name: 'PDF', extensions: ['pdf'] }]
-            });
-            if (!result.canceled) {
-              const pdfData = await mainWindow.webContents.printToPDF({
-                printBackground: true, pageSize: 'A4', landscape: false, marginsType: 1
-              });
-              fs.writeFileSync(result.filePath, pdfData);
-              shell.openPath(result.filePath);
-            }
-          }
-        },
-        { type: 'separator' },
-        { label: 'Exit', role: 'quit' }
-      ]
-    },
-    {
       label: 'Edit',
       submenu: [
         { label: 'Undo', accelerator: 'CmdOrCtrl+Z', click: () => mainWindow.webContents.send('menu-undo') },
@@ -189,63 +85,6 @@ function buildMenu() {
         { type: 'separator' },
         { label: 'Find & Replace', accelerator: 'CmdOrCtrl+H', click: () => mainWindow.webContents.send('menu-findreplace') }
       ]
-    },
-    {
-      label: 'Sheet',
-      submenu: [
-        { label: 'Add New Sheet', accelerator: 'CmdOrCtrl+Shift+N', click: () => mainWindow.webContents.send('menu-addsheet') },
-        { label: 'Rename Sheet', click: () => mainWindow.webContents.send('menu-renamesheet') },
-        { label: 'Delete Sheet', click: () => mainWindow.webContents.send('menu-deletesheet') },
-        { label: 'Duplicate Sheet', click: () => mainWindow.webContents.send('menu-duplicatesheet') }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        { label: 'Zoom In', accelerator: 'CmdOrCtrl+=', click: () => mainWindow.webContents.send('menu-zoomin') },
-        { label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', click: () => mainWindow.webContents.send('menu-zoomout') },
-        { label: 'Reset Zoom', accelerator: 'CmdOrCtrl+0', click: () => mainWindow.webContents.send('menu-zoomreset') },
-        { type: 'separator' },
-        { label: 'Toggle Gridlines', click: () => mainWindow.webContents.send('menu-gridlines') },
-        { label: 'Toggle Dark Mode', accelerator: 'CmdOrCtrl+Shift+D', click: () => mainWindow.webContents.send('menu-darkmode') },
-        { type: 'separator' },
-        { label: 'Toggle DevTools', accelerator: 'F12', click: () => mainWindow.webContents.toggleDevTools() }
-      ]
-    },
-    {
-      label: 'Tools',
-      submenu: [
-        {
-          label: 'Auto-Save Every 2 Minutes',
-          type: 'checkbox',
-          checked: false,
-          click: (item) => {
-            if (item.checked) {
-              autoSaveTimer = setInterval(() => mainWindow.webContents.send('menu-autosave'), 120000);
-            } else {
-              if (autoSaveTimer) clearInterval(autoSaveTimer);
-              autoSaveTimer = null;
-            }
-          }
-        },
-        { label: 'Open JainSheet Folder', click: () => shell.openPath('D:\\JainSheet') }
-      ]
-    },
-    {
-      label: 'Help',
-      submenu: [
-        { label: 'Keyboard Shortcuts', click: () => mainWindow.webContents.send('menu-shortcuts') },
-        { type: 'separator' },
-        {
-          label: 'About JainSheet',
-          click: () => dialog.showMessageBox(mainWindow, {
-            type: 'info',
-            title: 'About JainSheet',
-            message: 'JainSheet v2.1.0',
-            detail: 'A powerful desktop spreadsheet application.\nBuilt with Electron.\n\nFeatures: Multi-sheet, XLSX Save, Dark Mode,\nFull Formula Engine, Charts, CSV Import/Export\n\nProject Path: D:\\JainSheet\n\u00a9 2025-2026 JainSheet'
-          })
-        }
-      ]
     }
   ];
 
@@ -253,6 +92,9 @@ function buildMenu() {
 }
 
 // Fix: renderer sends 'trigger-saveas' when Ctrl+S is pressed with no file open
+ipcMain.on('menu-new', () => {
+  mainWindow.webContents.send('menu-new');
+});
 ipcMain.on('trigger-saveas', async (event) => {
   const result = await dialog.showSaveDialog(mainWindow, {
     defaultPath: 'D:\\JainSheet\\Book1',
@@ -290,6 +132,36 @@ ipcMain.on('autosave-data', (event, { filePath, content }) => {
   }
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+
+  // Open file passed via command-line argument.
+  // When launched by JainOffice launcher: electron.exe appDir filePath
+  // process.argv shape: [electron.exe, appDir, filePath]
+  // So the file is always at argv[2].
+  const argFile = (function () {
+    const candidate = process.argv[2];
+    if (!candidate) return null;
+    const ext = candidate.split('.').pop().toLowerCase();
+    if (ext === 'xlsx' || ext === 'xls') return candidate;
+    return null;
+  })();
+
+  if (argFile) {
+    mainWindow.webContents.once('did-finish-load', function () {
+      setTimeout(function () {
+        try {
+          const ext      = argFile.split('.').pop().toLowerCase();
+          const isBinary = (ext === 'xlsx' || ext === 'xls');
+          const content  = isBinary
+            ? fs.readFileSync(argFile).toString('base64')
+            : fs.readFileSync(argFile, 'utf8');
+          mainWindow.webContents.send('menu-open', { content, filePath: argFile, isBinary });
+          addToRecentSuite(argFile);
+        } catch (e) {}
+      }, 600);
+    });
+  }
+});
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (mainWindow === null) createWindow(); });
